@@ -49,11 +49,11 @@ def generate_launch_description():
         ),
 
         # Joy Teleop
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(PathJoinSubstitution(
-                [FindPackageShare('mowbot_control'), 'launch', 'teleop_joy.launch.py']
-            ))
-        ),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource(PathJoinSubstitution(
+        #         [FindPackageShare('mowbot_control'), 'launch', 'teleop_joy.launch.py']
+        #     ))
+        # ),
 
     ])
 
@@ -109,7 +109,7 @@ def generate_launch_description():
         use_lidar_arg,
         declare_use_arg,
         zbot_stella_n2_bringup_group_action,
-        zbot_stella_n2_sensors_group_action,
-        robot_localization_launch,
-        micro_ros_agent_node
+        # zbot_stella_n2_sensors_group_action,
+        # robot_localization_launch,
+        # micro_ros_agent_node
     ])
