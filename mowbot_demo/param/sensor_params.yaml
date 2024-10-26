@@ -1,0 +1,32 @@
+# your_package/config/rplidar_params.yaml
+
+rplidar_node:
+  ros__parameters:
+    channel_type: "serial"
+    serial_port: "/dev/rplidar"
+    serial_baudrate: 1000000  # Integer
+    frame_id: "laser"
+    inverted: false            # Boolean
+    angle_compensate: true     # Boolean
+    scan_mode: "DenseBoost"
+
+um7_driver:
+  ros__parameters:
+    port: "/dev/rsx-um7"
+
+imu_filter_node:
+  ros__parameters:
+    stateless: false
+    use_mag: false
+    publish_tf: false
+    reverse_tf: false
+    fixed_frame: "odom"
+    constant_dt: 0.0
+    publish_debug_topics: false
+    world_frame: "enu"
+    gain: 0.1
+    zeta: 0.0
+    mag_bias_x: 0.0
+    mag_bias_y: 0.0
+    mag_bias_z: 0.0
+    orientation_stddev: 0.0
