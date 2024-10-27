@@ -1,11 +1,74 @@
 <?xml version="1.0"?>
-<!-- mowbot.urdf.xacro -->
-
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="mowbot">
 
-  <!-- Include the base Xacro file using pkg_prefix -->
-  <xacro:include filename="$(find mowbot_description)/urdf/mowbot_base.urdf.xacro" />
+  <xacro:property name="PI" value="3.1415926535897931"/>
 
-  <!-- Define additional components here if needed -->
+  <material name="red">
+    <color rgba="0.8 0.0 0.0 1.0"/>
+  </material>
+
+  <material name="grey">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+
+  <material name="orange">
+    <color rgba="1.0 0.4235 0.0392 1.0"/>
+  </material>
+
+  <link name="base_link">
+    <!-- <visual>
+      <geometry>
+        <mesh filename="package://mowbot_description/meshes/mowbot_v01.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="1.32 1.24 0.662"/>
+      </geometry>
+    </collision> -->
+
+  </link>
+
+  <!-- <link name="base_footprint"/>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+  </joint> -->
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0.0 0.0 0.7" rpy="0.0 0.0 0.0"/>
+  </joint>
+
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.02 0.025 0.01"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+  </link>
+
+  <joint name="laser_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="laser_link"/>
+    <origin xyz="0.08 0.0 0.7" rpy="0.0 0.0 ${pi}"/>
+  </joint>
+
+  <link name="laser_link" >
+    <visual>
+      <geometry>
+        <cylinder radius="0.035" length="0.04"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+  
+
 
 </robot>

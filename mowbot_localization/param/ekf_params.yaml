@@ -11,10 +11,10 @@ ekf_filter_node:
 
     map_frame: map
     odom_frame: odom
-    base_link_frame: base_footprint
+    base_link_frame: base_link
     world_frame: odom
 
-    odom0: /mw_md/odom
+    odom0: /mowbot_base/odom
     odom0_config: [false, false, false, # x, y, z
                    false, false, false, # roll, pitch, yaw
                    true, true, false,   # vx, vy, vz

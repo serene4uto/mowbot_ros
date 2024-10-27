@@ -5,7 +5,7 @@ rplidar_node:
     channel_type: "serial"
     serial_port: "/dev/rplidar"
     serial_baudrate: 1000000  # Integer
-    frame_id: "laser"
+    frame_id: "laser_link"
     inverted: false            # Boolean
     angle_compensate: true     # Boolean
     scan_mode: "DenseBoost"
@@ -13,6 +13,7 @@ rplidar_node:
 um7_driver:
   ros__parameters:
     port: "/dev/rsx-um7"
+    frame_id: "imu_link"
 
 imu_filter_node:
   ros__parameters:
@@ -30,3 +31,33 @@ imu_filter_node:
     mag_bias_y: 0.0
     mag_bias_z: 0.0
     orientation_stddev: 0.0
+
+
+mw_ahrs_ros2_driver:
+  ros__parameters:
+    linear_acceleration_stddev: 0.02
+    angular_velocity_stddev: 0.01
+    magnetic_field_stddev: 0.00000327486
+    orientation_stddev: 0.00125
+    publish_tf: false
+    frame_id: "imu_link"
+
+ydlidar_node:
+  ros__parameters:
+    port: /dev/ttyUSB0
+    frame_id: laser_link
+    ignore_array: ""
+    baudrate: 128000
+    samp_rate: 9
+    resolution_fixed: true
+    singleChannel: false
+    auto_reconnect: true
+    reversion: true
+    isToFLidar: false
+    angle_max: 180.0
+    angle_min: -180.0
+    max_range: 10.0
+    min_range: 0.12
+    frequency: 10.0
+
+
