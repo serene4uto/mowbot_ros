@@ -65,7 +65,10 @@ def generate_launch_description():
             name='rplidar_node',
             parameters=[sensor_params_file],
             output='screen',
-            condition=IfCondition(use_lidar)
+            condition=IfCondition(use_lidar),
+            remappings=[
+                ('scan', 'front/scan')
+            ]
         ),
 
         #YDLidar
