@@ -16,7 +16,7 @@
   </material>
 
   <link name="base_link">
-    <!-- <visual>
+    <visual>
       <geometry>
         <mesh filename="package://mowbot_description/meshes/mowbot_v01.stl" scale="1.0 1.0 1.0"/>
       </geometry>
@@ -27,7 +27,7 @@
       <geometry>
         <box size="1.32 1.24 0.662"/>
       </geometry>
-    </collision> -->
+    </collision>
 
   </link>
 
@@ -57,7 +57,7 @@
   <joint name="laser_joint" type="fixed">
     <parent link="base_link"/>
     <child link="laser_link"/>
-    <origin xyz="0.08 0.0 0.7" rpy="0.0 0.0 ${pi}"/>
+    <origin xyz="0.08 0.0 0.9" rpy="0.0 0.0 ${pi}"/>
   </joint>
 
   <link name="laser_link" >
@@ -68,6 +68,20 @@
       <material name="grey"/>
     </visual>
   </link>
+
+  <link name="camera_link">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 0.05"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="0.4 0.0 0.7" rpy="0.0 0.0 0.0"/>
   
 
 
