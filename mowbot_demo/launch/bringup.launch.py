@@ -85,6 +85,21 @@ def generate_launch_description():
         #     condition=IfCondition(use_lidar)
         # ),
 
+        #realsense_camera
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution(
+                [FindPackageShare('realsense2_camera'), 'launch', 'rs_launch.py']
+            )),
+            condition=IfCondition(use_rscam),
+            launch_arguments={
+                'align_depth.enable': 'true',
+                'pointcloud.enable': 'true',
+                # 'enable_sync': 'true',
+                'rgb_camera.color_profile': '424x240x15',
+                'depth_module.depth_profile': '424x240x15',
+            }.items()
+        ),
+
 
         # imu
         # Node(
