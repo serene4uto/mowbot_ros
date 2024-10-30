@@ -28,7 +28,7 @@ def generate_launch_description():
     )
     declare_use_imu_arg = DeclareLaunchArgument(
         'use_imu',
-        default_value='true',
+        default_value='false',
         description='Whether to use the IMU or not'
     )
 
@@ -65,7 +65,12 @@ def generate_launch_description():
         name='um7_driver',
         parameters=[param_file],
         output='screen',
-        condition=IfCondition(use_imu)
+        condition=IfCondition(use_imu),
+        remappings=[
+            ('imu/data', 'mb_imu/data'),
+            ('imu/mag', 'mb_imu/mag'),
+            ('imu/yaw', 'mb_imu/yaw'),
+        ]
     )
 
     stella_ahrs_node = Node(
@@ -76,10 +81,10 @@ def generate_launch_description():
         parameters=[param_file],
         condition=IfCondition(use_imu),
         remappings=[
-            ('imu/data', 'mw_ahrs_imu/data'),
-            ('imu/data_raw', 'mw_ahrs_imu/data_raw'),
-            ('imu/mag', 'mw_ahrs_imu/mag'),
-            ('imu/yaw', 'mw_ahrs_imu/yaw'),
+            ('imu/data', 'mb_imu/data'),
+            ('imu/data_raw', 'mb_imu/data_raw'),
+            ('imu/mag', 'mb_imu/mag'),
+            ('imu/yaw', 'mb_imu/yaw'),
         ]
     )
 
@@ -91,8 +96,8 @@ def generate_launch_description():
         parameters=[param_file],
         condition=IfCondition(use_imu),
         remappings=[
-            ('imu/data_raw', 'mw_ahrs_imu/data'),
-            ('imu/mag', 'mw_ahrs_imu/mag')
+            ('imu/data_raw', 'mb_imu/data'),
+            ('imu/mag', 'mb_imu/mag')
         ]
     )
 
@@ -114,8 +119,8 @@ def generate_launch_description():
         log_info,   
         robot_description_launch,
         rplidar_node,
-        # rsx_um7_node,
-        stella_ahrs_node,
+        rsx_um7_node,
+        # stella_ahrs_node,
         imu_filter_node,
         rviz2_node
     ])

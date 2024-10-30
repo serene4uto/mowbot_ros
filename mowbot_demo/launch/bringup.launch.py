@@ -15,9 +15,10 @@ import os
 def generate_launch_description():
     
     sensor_params_file = os.path.join(get_package_share_directory('mowbot_demo'), 'param', 'sensor_params.yaml')
-    ekf_params_file = os.path.join(get_package_share_directory('mowbot_demo'), 'param', 'ekf_params.yaml')  
+    ekf_params_file = os.path.join(get_package_share_directory('mowbot_localization'), 'param', 'ekf_params.yaml')
+    rviz_file = os.path.join(get_package_share_directory('mowbot_demo'), 'rviz', 'sensors.rviz')  
 
-    use_lidar_arg = DeclareLaunchArgument(
+    declare_use_lidar_arg = DeclareLaunchArgument(
         'use_lidar',
         default_value='false',
         description='Whether to use the lidar or not'
@@ -35,9 +36,32 @@ def generate_launch_description():
         description='Whether to use the imu or not'
     )
 
+    declare_use_rl_arg = DeclareLaunchArgument(
+        'use_rl',
+        default_value='false',
+        description='Whether to use the robot_localization or not'
+    )
+
+    declare_use_uros_agent_arg = DeclareLaunchArgument(
+        'use_uros_agent',
+        default_value='false',
+        description='Whether to use the micro_ros_agent or not'
+    )
+
+    declare_use_rviz_arg = DeclareLaunchArgument(
+        'use_rviz',
+        default_value='false',
+        description='Whether to start RViz or not'
+    )
+
     use_lidar = LaunchConfiguration('use_lidar')
     use_rscam = LaunchConfiguration('use_rscam')
-    use_imu = LaunchConfiguration('use_imu')    
+    use_imu = LaunchConfiguration('use_imu')  
+
+    use_rl = LaunchConfiguration('use_rl')
+    use_uros_agent = LaunchConfiguration('use_uros_agent')  
+
+    use_rviz = LaunchConfiguration('use_rviz')
 
     zbot_stella_n2_bringup_group_action = GroupAction([
 
@@ -67,7 +91,7 @@ def generate_launch_description():
             output='screen',
             condition=IfCondition(use_lidar),
             remappings=[
-                ('scan', 'front/scan')
+                # ('scan', 'front/scan')
             ]
         ),
 
@@ -102,28 +126,34 @@ def generate_launch_description():
 
 
         # imu
-        # Node(
-        #     package='umx_driver',
-        #     executable='um7_driver',
-        #     name='um7_driver',
-        #     parameters=[sensor_params_file],
-        #     output='screen'
-        # ),
-
         Node(
-            package='stella_ahrs',
-            executable='stella_ahrs_node',
-            name='stella_ahrs_node',
-            output='screen',
+            package='umx_driver',
+            executable='um7_driver',
+            name='um7_driver',
             parameters=[sensor_params_file],
+            output='screen',
             condition=IfCondition(use_imu),
             remappings=[
-                ('imu/data', 'mw_ahrs_imu/data'),
-                ('imu/data_raw', 'mw_ahrs_imu/data_raw'),
-                ('imu/mag', 'mw_ahrs_imu/mag'),
-                ('imu/yaw', 'mw_ahrs_imu/yaw'),
+                ('imu/data', 'mb_imu/data'),
+                ('imu/mag', 'mb_imu/mag'),
+                ('imu/yaw', 'mb_imu/yaw'),
             ]
         ),
+
+        # Node(
+        #     package='stella_ahrs',
+        #     executable='stella_ahrs_node',
+        #     name='stella_ahrs_node',
+        #     output='screen',
+        #     parameters=[sensor_params_file],
+        #     condition=IfCondition(use_imu),
+        #     remappings=[
+        #         ('imu/data', 'mw_ahrs_imu/data'),
+        #         ('imu/data_raw', 'mw_ahrs_imu/data_raw'),
+        #         ('imu/mag', 'mw_ahrs_imu/mag'),
+        #         ('imu/yaw', 'mw_ahrs_imu/yaw'),
+        #     ]
+        # ),
         
         # imu fiter
         Node(
@@ -132,35 +162,57 @@ def generate_launch_description():
             name='imu_filter_node',
             output='screen',
             parameters=[sensor_params_file],
-            condition=IfCondition(use_imu), 
+            condition=IfCondition(use_imu),
             remappings=[
-                ('imu/data_raw', 'mw_ahrs_imu/data'),
-                ('imu/mag', 'mw_ahrs_imu/mag')
+                ('imu/data_raw', 'mb_imu/data'),
+                ('imu/mag', 'mb_imu/mag')
             ]
         ),
     ])
 
-    robot_localization_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(PathJoinSubstitution(
-                [FindPackageShare('mowbot_localization'), 'launch', 'ekf.launch.py']
-            ))
+    robot_localization_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[ekf_params_file],
+        condition=IfCondition(use_rl)
     )
     
     micro_ros_agent_node = Node(
         package='micro_ros_agent',
         executable='micro_ros_agent',
         name='micro_ros_agent',
-        arguments=["serial", "--dev", "/dev/mbb", "-v6"]
-    ),
+        arguments=["serial", "--dev", "/dev/mbb", "-v6"],
+        condition=IfCondition(use_uros_agent)
+    )
+
+
+    # rviz
+    rviz2_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        output='screen',
+        condition=IfCondition(use_rviz),
+        arguments=['-d', rviz_file]
+    )
     
 
 
     return LaunchDescription([
-        use_lidar_arg,
+        # Declare arguments
+        declare_use_lidar_arg,
         declare_use_rscam_arg,
         declare_use_imu_arg,
+        declare_use_rl_arg,
+        declare_use_uros_agent_arg,
+        declare_use_rviz_arg,
+
+        # Group actions
         zbot_stella_n2_bringup_group_action,
         zbot_stella_n2_sensors_group_action,
-        robot_localization_launch,
-        # micro_ros_agent_node
+        robot_localization_node,
+        micro_ros_agent_node,
+        rviz2_node
     ])

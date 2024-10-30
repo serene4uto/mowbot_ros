@@ -14,6 +14,11 @@ um7_driver:
   ros__parameters:
     port: "/dev/rsx-um7"
     frame_id: "imu_link"
+    mag_updates: true
+    quat_mode: true
+    zero_gyros: true
+    covariance: "0 0 0 0 0 0 0 0 0"
+
 
 imu_filter_node:
   ros__parameters:

@@ -50,15 +50,15 @@ joy_teleop/teleop_twist_joy_node:
     axis_linear:
       x: 1
     scale_linear:
-      x: 0.4
+      x: 0.4 # 0.4 m/s
     scale_linear_turbo:
-      x: 1.0
+      x: 1.0 
     axis_angular:
-      yaw: 0
+      yaw: 0 # rad/s
     scale_angular:
-      yaw: 2.4
+      yaw: 1.8 # rad/s
     scale_angular_turbo:
-      yaw: 1.2
+      yaw: 2.4 # rad/s
     enable_button: 9
     enable_turbo_button: 5
 joy_teleop/joy_node:
