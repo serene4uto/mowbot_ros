@@ -142,7 +142,7 @@ class UwbTagFollowNode(Node):
 
     goal_update_interval = 2.0  # seconds
 
-    follow_distance_threshold = 1.0  # meters, distance to the tag to stop following
+    follow_distance_threshold = 2.0  # meters, distance to the tag to stop following
 
 
     STATE_IDLE = 0
@@ -152,8 +152,8 @@ class UwbTagFollowNode(Node):
         super().__init__('uwbtag_follow')
 
         self.current_dist2D_to_tag = None
-
-        self.current_state = None
+        self.current_state = self.STATE_IDLE
+        self.prev_uwb_point = None
 
         # Initialize Goal Manager, TODO: retry to connect to the action server if it fails
         self.goal_manager = GoalManager(self, action_name='navigate_to_pose')
@@ -163,6 +163,7 @@ class UwbTagFollowNode(Node):
 
         # Initialize last goal time for throttling
         self.last_goal_time = self.get_clock().now()
+        self.last_goal = None
 
         # Subscribe to uwb_tag_point topic
         self.subscription = self.create_subscription(
@@ -177,38 +178,40 @@ class UwbTagFollowNode(Node):
 
         # self.get_logger().info(f'Tag point: {msg.point.x:.2f}, {msg.point.y:.2f}, {msg.point.z:.2f}')
 
+        # check if prev pose not too far from current
+
         try:
             # Transform the point to the map frame
             point_in_map = self.transform_handler.transform_point(point_stamped=msg)
             if point_in_map is None:
                 self.get_logger().error('Failed to transform point.')
                 return
-
             # self.get_logger().info(f'Tag point in map: {point_in_map.point.x:.2f}, {point_in_map.point.y:.2f}, {point_in_map.point.z:.2f}')
-
-            # Calculate distance to robot in map frame
-            # self.current_dist2D_to_tag = math.sqrt(
-            #     point_in_map.point.x ** 2 +
-            #     point_in_map.point.y ** 2
-            # )
 
             # Calculate distance to robot in base_link frame
             self.current_dist2D_to_tag = math.sqrt(
-                PointStamped().point.x ** 2 +
-                PointStamped().point.y ** 2
+                msg.point.x ** 2 +
+                msg.point.y ** 2
             )
 
-            # self.get_logger().info(f'Tag distance 2d: {self.current_dist2D_to_tag:.2f} m')
-
             # Check if the tag is close enough to the robot
-            if (self.current_dist2D_to_tag <= self.follow_distance_threshold 
-                and self.current_state == self.STATE_FOLLOWING):
-
-                self.get_logger().info('Tag is close enough to the robot.')
-                self.emergency_stop()
+            if self.current_dist2D_to_tag < self.follow_distance_threshold:
+                if self.current_state == self.STATE_FOLLOWING:
+                    self.get_logger().info(f'Tag distance 2d: {self.current_dist2D_to_tag:.2f} m')
+                    self.get_logger().info('Tag is close enough to the robot.')
+                    self.get_logger().info('Stop following the tag.')
+                    self.emergency_stop()
+                    self.current_state = self.STATE_IDLE
+                    
                 return
-            
+
             # if not close enough, process new goal
+
+            if self.current_state == self.STATE_IDLE:
+                self.current_state = self.STATE_FOLLOWING
+                self.get_logger().info(f'Tag distance 2d: {self.current_dist2D_to_tag:.2f} m')
+                self.get_logger().info('Start following the tag.')
+
 
             # Throttle goal updates
             current_time = self.get_clock().now()
@@ -224,6 +227,13 @@ class UwbTagFollowNode(Node):
             goal_x = scaling_factor * point_in_map.point.x
             goal_y = scaling_factor * point_in_map.point.y
 
+            if self.last_goal is not None:
+                if abs(goal_x - self.last_goal[0]) < 0.1 and abs(goal_y - self.last_goal[1]) < 0.1:
+                    self.get_logger().info('Goal not changed significantly, skipping...')
+                    return
+            else:
+                self.last_goal = (goal_x, goal_y)
+
             # Create a PoseStamped for the goal
             goal_pose = PoseStamped()
             goal_pose.header.frame_id = self.world_frame
@@ -231,7 +241,6 @@ class UwbTagFollowNode(Node):
             goal_pose.pose.position.x = goal_x
             goal_pose.pose.position.y = goal_y
             goal_pose.pose.position.z = 0.0  # Assuming flat ground
-
 
             # Calculate orientation towards the goal using SciPy
             yaw = math.atan2(goal_y, goal_x)  # Adjusted for map frame
