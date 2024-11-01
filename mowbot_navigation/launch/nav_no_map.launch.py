@@ -11,6 +11,7 @@ import os
 def generate_launch_description():
     nav_dir = get_package_share_directory('mowbot_navigation')
     nav_param_file = os.path.join(nav_dir, 'param', 'nav2_no_map_params.yaml')
+    rviz_config_file = os.path.join(nav_dir, 'rviz', 'nav2_nav_no_map_view.rviz')
 
     declare_use_sim_time_argument = DeclareLaunchArgument(
         'use_sim_time',
@@ -37,10 +38,11 @@ def generate_launch_description():
         }.items(),
     )
 
-    rviz_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(nav_dir, 'launch', 'rviz.launch.py')
-        ),
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz_config_file],
         condition=IfCondition(use_rviz)
     )
 
@@ -57,6 +59,6 @@ def generate_launch_description():
         declare_use_sim_time_argument,
         declare_use_rviz_argument,
         nav2_bringup_launch,
-        rviz_launch,
+        rviz_node,
         tf2_node
     ])
