@@ -4,13 +4,13 @@ from geometry_msgs.msg import PointStamped, PoseStamped
 from nav2_msgs.action import NavigateToPose
 from rclpy.action import ActionClient
 import tf2_ros
-import tf2_geometry_msgs
 import math
 from tf2_ros import LookupException, ConnectivityException, ExtrapolationException
 from rclpy.duration import Duration
 from scipy.spatial.transform import Rotation as R
 from rclpy.task import Future
 from action_msgs.msg import GoalStatus
+import tf2_geometry_msgs  # Import the correct module
 
 
 class TransformationHandler:
@@ -29,19 +29,35 @@ class TransformationHandler:
                 now,
                 timeout=timeout
             )
+            # Use tf2_geometry_msgs.do_transform_point
             point_in_target = tf2_geometry_msgs.do_transform_point(point_stamped, transform)
             return point_in_target
-        
+
         except (LookupException, ConnectivityException, ExtrapolationException) as e:
             self.node.get_logger().error(f'Failed to transform point: {e}')
             return None
+
+    def get_robot_pose(self, robot_frame, timeout=Duration(seconds=1.0)):
+        try:
+            now = rclpy.time.Time()
+            transform = self.tf_buffer.lookup_transform(
+                self.target_frame,
+                robot_frame,
+                now,
+                timeout=timeout
+            )
+            return transform
+        except (LookupException, ConnectivityException, ExtrapolationException) as e:
+            self.node.get_logger().error(f'Failed to get robot pose: {e}')
+            return None
+
 
 class GoalManager:
     def __init__(self, node: Node, action_name: str = 'navigate_to_pose'):
         self.node = node
         self.action_client = ActionClient(node, NavigateToPose, action_name)
         self.current_goal_handle = None  # Store the current goal handle
-        
+
         # Waiting for the NavigateToPose action server with timeout
         self.node.get_logger().info(f'Waiting for {action_name} action server...')
         if not self.action_client.wait_for_server(timeout_sec=5.0):
@@ -126,24 +142,21 @@ class GoalManager:
             self.node.get_logger().warn('Failed to cancel the goal or no goal was active.')
 
     @staticmethod
-    def calculate_orientation(goal_x: float, goal_y: float) -> list:
-        """Calculate the quaternion from a yaw angle towards (goal_x, goal_y)."""
-        yaw = math.atan2(goal_y, goal_x)
+    def calculate_orientation(yaw: float) -> list:
+        """Calculate the quaternion from a yaw angle."""
         rotation = R.from_euler('z', yaw)
         quaternion = rotation.as_quat()  # [x, y, z, w]
         return quaternion
 
 
-        
 class UwbTagFollowNode(Node):
 
-    world_frame = 'odom' #'map'
+    world_frame = 'odom'  # 'map'
     robot_frame = 'base_link'
 
     goal_update_interval = 2.0  # seconds
 
     follow_distance_threshold = 2.0  # meters, distance to the tag to stop following
-
 
     STATE_IDLE = 0
     STATE_FOLLOWING = 1
@@ -155,7 +168,7 @@ class UwbTagFollowNode(Node):
         self.current_state = self.STATE_IDLE
         self.prev_uwb_point = None
 
-        # Initialize Goal Manager, TODO: retry to connect to the action server if it fails
+        # Initialize Goal Manager
         self.goal_manager = GoalManager(self, action_name='navigate_to_pose')
 
         # Initialize Transformation Handler
@@ -171,14 +184,8 @@ class UwbTagFollowNode(Node):
             '/uwb_tag_point/kf_spikes_filtered',
             self.tag_point_callback,
             10)
-            
-
 
     def tag_point_callback(self, msg):
-
-        # self.get_logger().info(f'Tag point: {msg.point.x:.2f}, {msg.point.y:.2f}, {msg.point.z:.2f}')
-
-        # check if prev pose not too far from current
 
         try:
             # Transform the point to the map frame
@@ -186,32 +193,36 @@ class UwbTagFollowNode(Node):
             if point_in_map is None:
                 self.get_logger().error('Failed to transform point.')
                 return
-            # self.get_logger().info(f'Tag point in map: {point_in_map.point.x:.2f}, {point_in_map.point.y:.2f}, {point_in_map.point.z:.2f}')
 
-            # Calculate distance to robot in base_link frame
-            self.current_dist2D_to_tag = math.sqrt(
-                msg.point.x ** 2 +
-                msg.point.y ** 2
-            )
+            # Get robot's current position in map frame
+            robot_transform = self.transform_handler.get_robot_pose(self.robot_frame)
+            if robot_transform is None:
+                self.get_logger().error('Failed to get robot pose.')
+                return
+
+            robot_x = robot_transform.transform.translation.x
+            robot_y = robot_transform.transform.translation.y
+
+            # Calculate distance to tag
+            dx = point_in_map.point.x - robot_x
+            dy = point_in_map.point.y - robot_y
+            self.current_dist2D_to_tag = math.hypot(dx, dy)
 
             # Check if the tag is close enough to the robot
             if self.current_dist2D_to_tag < self.follow_distance_threshold:
                 if self.current_state == self.STATE_FOLLOWING:
-                    self.get_logger().info(f'Tag distance 2d: {self.current_dist2D_to_tag:.2f} m')
+                    self.get_logger().info(f'Tag distance 2D: {self.current_dist2D_to_tag:.2f} m')
                     self.get_logger().info('Tag is close enough to the robot.')
                     self.get_logger().info('Stop following the tag.')
                     self.emergency_stop()
                     self.current_state = self.STATE_IDLE
-                    
                 return
 
-            # if not close enough, process new goal
-
+            # If not close enough, process new goal
             if self.current_state == self.STATE_IDLE:
                 self.current_state = self.STATE_FOLLOWING
-                self.get_logger().info(f'Tag distance 2d: {self.current_dist2D_to_tag:.2f} m')
+                self.get_logger().info(f'Tag distance 2D: {self.current_dist2D_to_tag:.2f} m')
                 self.get_logger().info('Start following the tag.')
-
 
             # Throttle goal updates
             current_time = self.get_clock().now()
@@ -219,13 +230,13 @@ class UwbTagFollowNode(Node):
             if time_since_last_goal < self.goal_update_interval:
                 self.get_logger().debug('Goal update throttled.')
                 return  # Skip sending a new goal
-            
+
             self.last_goal_time = current_time
 
             # Calculate the goal position that is scaled based on the distance to the tag
             scaling_factor = (self.current_dist2D_to_tag - self.follow_distance_threshold) / self.current_dist2D_to_tag
-            goal_x = scaling_factor * point_in_map.point.x
-            goal_y = scaling_factor * point_in_map.point.y
+            goal_x = robot_x + scaling_factor * dx
+            goal_y = robot_y + scaling_factor * dy
 
             if self.last_goal is not None:
                 if abs(goal_x - self.last_goal[0]) < 0.1 and abs(goal_y - self.last_goal[1]) < 0.1:
@@ -242,17 +253,16 @@ class UwbTagFollowNode(Node):
             goal_pose.pose.position.y = goal_y
             goal_pose.pose.position.z = 0.0  # Assuming flat ground
 
-            # Calculate orientation towards the goal using SciPy
-            yaw = math.atan2(goal_y, goal_x)  # Adjusted for map frame
-            quaternion = self.goal_manager.calculate_orientation(goal_x, goal_y)
+            # Calculate orientation towards the goal
+            yaw = math.atan2(dy, dx)
+            quaternion = self.goal_manager.calculate_orientation(yaw)
             goal_pose.pose.orientation.x = quaternion[0]
             goal_pose.pose.orientation.y = quaternion[1]
             goal_pose.pose.orientation.z = quaternion[2]
             goal_pose.pose.orientation.w = quaternion[3]
 
             self.get_logger().info(f'Following tag at distance: {self.current_dist2D_to_tag:.2f} m')
-            self.get_logger().info(f'Tag point in map:\
-                    {point_in_map.point.x:.2f}, {point_in_map.point.y:.2f}, {point_in_map.point.z:.2f}')
+            self.get_logger().info(f'Tag point in map: {point_in_map.point.x:.2f}, {point_in_map.point.y:.2f}, {point_in_map.point.z:.2f}')
             self.get_logger().info(f'Goal position: {goal_x:.2f}, {goal_y:.2f}')
             rpy = R.from_quat(quaternion).as_euler('xyz', degrees=True)
             self.get_logger().info(f'Goal orientation: {rpy[2]:.2f} deg')
@@ -261,7 +271,7 @@ class UwbTagFollowNode(Node):
 
         except Exception as e:
             self.get_logger().error(f'Failed to process tag point: {e}')
-    
+
     def feedback_callback(self, feedback_msg):
         distance_remaining = feedback_msg.feedback.distance_remaining
         current_position = feedback_msg.feedback.current_pose.pose.position
@@ -275,12 +285,6 @@ class UwbTagFollowNode(Node):
     def emergency_stop(self):
         self.get_logger().warn('Emergency stop activated!')
         self.goal_manager.cancel_goal()
-
-
-
-        
-
-
 
 
 def main(args=None):
