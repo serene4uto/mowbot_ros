@@ -38,6 +38,12 @@ def generate_launch_description():
         description='Whether to use the imu or not'
     )
 
+    declare_use_lidar_3d_flash_arg = DeclareLaunchArgument(
+        'use_lidar_3d_flash',
+        default_value='false',
+        description='Whether to use the 3d flash lidar or not'
+    )
+
     declare_use_rl_arg = DeclareLaunchArgument(
         'use_rl',
         default_value='false',
@@ -59,6 +65,7 @@ def generate_launch_description():
     use_lidar = LaunchConfiguration('use_lidar')
     use_rscam = LaunchConfiguration('use_rscam')
     use_imu = LaunchConfiguration('use_imu')  
+    use_lidar_3d_flash = LaunchConfiguration('use_lidar_3d_flash')
 
     use_rl = LaunchConfiguration('use_rl')
     use_uros_agent = LaunchConfiguration('use_uros_agent')  
@@ -125,6 +132,17 @@ def generate_launch_description():
                 # 'depth_module.depth_profile': '424x240x15',
                 'config_file': rs_config_file
             }.items()
+        ),
+
+        # 3d flash lidar
+        Node(
+            package='roboscan_nsl2206',
+            executable='roboscan_publish_node',
+            output='screen',
+            parameters=[
+                {"0. cvShow": False},
+            ],
+            condition=IfCondition(use_lidar_3d_flash)
         ),
 
 
@@ -208,6 +226,7 @@ def generate_launch_description():
         declare_use_lidar_arg,
         declare_use_rscam_arg,
         declare_use_imu_arg,
+        declare_use_lidar_3d_flash_arg,
         declare_use_rl_arg,
         declare_use_uros_agent_arg,
         declare_use_rviz_arg,

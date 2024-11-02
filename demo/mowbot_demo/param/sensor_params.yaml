@@ -65,4 +65,9 @@ ydlidar_node:
     min_range: 0.12
     frequency: 10.0
 
+roboscan_publish_node:
+  ros__parameters:
+    cvShow: false
+
+
 

@@ -69,6 +69,16 @@
     </visual>
   </link>
 
+
+  <joint name="3d_flash_lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="roboscan_frame"/>
+    <origin xyz="0.53 0.0 -0.045" rpy="0.0 0.0 0.0"/>
+    <!-- <origin xyz="0.53 0.0 0.0" rpy="0.0 0.0 0.0"/> -->
+  </joint>
+
+  <link name="roboscan_frame"></link>
+
   <link name="camera_link">
     <visual>
       <geometry>

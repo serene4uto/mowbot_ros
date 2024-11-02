@@ -56,7 +56,7 @@ pointcloud:
   ordered_pc: false
   allow_no_texture_points: true
 align_depth:
-  enable: false
+  enable: true
 colorizer:
   enable: false
 decimation_filter:
