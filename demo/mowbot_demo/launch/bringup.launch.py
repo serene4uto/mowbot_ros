@@ -14,9 +14,11 @@ import os
 
 def generate_launch_description():
     
-    sensor_params_file = os.path.join(get_package_share_directory('mowbot_demo'), 'param', 'sensor_params.yaml')
+    sensor_params_dir = os.path.join(get_package_share_directory('mowbot_demo'), 'param')
+    sensor_params_file = os.path.join(sensor_params_dir, 'sensor_params.yaml')
     ekf_params_file = os.path.join(get_package_share_directory('mowbot_localization'), 'param', 'ekf_params.yaml')
     rviz_file = os.path.join(get_package_share_directory('mowbot_demo'), 'rviz', 'sensors.rviz')  
+    rs_config_file = os.path.join(sensor_params_dir, 'rs_config.yaml')
 
     declare_use_lidar_arg = DeclareLaunchArgument(
         'use_lidar',
@@ -116,11 +118,12 @@ def generate_launch_description():
             )),
             condition=IfCondition(use_rscam),
             launch_arguments={
-                'align_depth.enable': 'true',
-                'pointcloud.enable': 'true',
-                # 'enable_sync': 'true',
-                'rgb_camera.color_profile': '424x240x15',
-                'depth_module.depth_profile': '424x240x15',
+                # 'align_depth.enable': 'true',
+                # 'pointcloud.enable': 'true',
+                # # 'enable_sync': 'true',
+                # 'rgb_camera.color_profile': '424x240x15',
+                # 'depth_module.depth_profile': '424x240x15',
+                'config_file': rs_config_file
             }.items()
         ),
 

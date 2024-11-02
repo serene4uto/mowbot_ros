@@ -20,6 +20,7 @@ def generate_launch_description():
     rviz_dir = os.path.join(get_package_share_directory(package_name), 'rviz')
     param_file = os.path.join(param_dir, 'sensor_params.yaml')
     rviz_file = os.path.join(rviz_dir, 'sensors.rviz')
+    
 
     declare_use_lidar_arg = DeclareLaunchArgument(
         'use_lidar',
