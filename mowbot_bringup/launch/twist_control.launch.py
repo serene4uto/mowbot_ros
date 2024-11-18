@@ -53,5 +53,4 @@ def generate_launch_description():
                 twist_mux_config_path
             ]
         ),
-
     ])
