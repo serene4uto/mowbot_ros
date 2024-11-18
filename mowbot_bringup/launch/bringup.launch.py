@@ -45,6 +45,12 @@ def generate_launch_description():
         ),
 
         DeclareLaunchArgument(
+            'dcam',
+            default_value='false',
+            description='Whether to start the depth camera'
+        ),
+
+        DeclareLaunchArgument(
             name='madgwick',
             default_value='false',
             description='Use madgwick to fuse imu and magnetometer'
@@ -76,7 +82,8 @@ def generate_launch_description():
             launch_arguments={
                 'namespace': LaunchConfiguration('namespace'),
                 'imu': LaunchConfiguration('imu'),
-                'laser': LaunchConfiguration('laser')
+                'laser': LaunchConfiguration('laser'),
+                'dcam': LaunchConfiguration('dcam')
             }.items()
         ),
 

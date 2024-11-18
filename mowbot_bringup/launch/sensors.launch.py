@@ -1,7 +1,8 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch.conditions import IfCondition
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -15,6 +16,10 @@ def generate_launch_description():
 
     laser_config_path = PathJoinSubstitution(
         [FindPackageShare('mowbot_bringup'), 'config', 'laser.yaml']
+    )
+
+    dcam_config_path = PathJoinSubstitution(
+        [FindPackageShare('mowbot_bringup'), 'config', 'rs.yaml'] 
     )
 
     return LaunchDescription([
@@ -35,6 +40,12 @@ def generate_launch_description():
             'laser',
             default_value='false',
             description='Whether to start the laser'
+        ),
+
+        DeclareLaunchArgument(
+            name='dcam',
+            default_value='false',
+            description='Whether to start the depth camera'
         ),
 
         Node(
@@ -59,5 +70,16 @@ def generate_launch_description():
             output='screen',
             condition=IfCondition(LaunchConfiguration('laser'))
         ),
+
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(PathJoinSubstitution(
+                [FindPackageShare('realsense2_camera'), 'launch', 'rs_launch.py']
+            )),
+            condition=IfCondition(LaunchConfiguration('dcam')),
+            launch_arguments={
+                'config_file': dcam_config_path
+            }.items()   
+        ),
+        
 
     ])
