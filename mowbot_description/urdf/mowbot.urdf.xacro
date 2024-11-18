@@ -19,9 +19,6 @@
   </material>
 
   <link name="base_footprint">
-  </link>
-
-  <link name="base_link">
     <visual>
       <geometry>
         <mesh filename="package://mowbot_description/meshes/mowbot_v01.stl" scale="1.0 1.0 1.0"/>
@@ -34,6 +31,9 @@
         <box size="${length} ${width} ${height}"/>
       </geometry>
     </collision>
+  </link>
+
+  <link name="base_link">
   </link>
 
   <joint name="base_to_footprint_joint" type="fixed">
@@ -54,7 +54,7 @@
   <joint name="base_to_imu_joint" type="fixed">
     <parent link="base_link"/>
     <child link="imu_link"/>
-    <origin xyz="-0.14 0.0 ${height+0.015}" rpy="0.0 0.0 0.0"/>
+    <origin xyz="-0.14 0.0 ${height - 0.335 + 0.015}" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <link name="laser_link">
@@ -69,7 +69,7 @@
   <joint name="base_to_laser_joint" type="fixed">
     <parent link="base_link"/>
     <child link="laser_link"/>
-    <origin xyz="0.0 0.0 ${height + 0.16}" rpy="0.0 0.0 ${PI}"/>
+    <origin xyz="-0.1 0.0 ${height - 0.335 + 0.16}" rpy="0.0 0.0 ${PI}"/>
   </joint>
 
   <link name="camera_link">
@@ -84,7 +84,7 @@
   <joint name="base_to_camera_joint" type="fixed">
     <parent link="base_link"/>
     <child link="camera_link"/>
-    <origin xyz="0.55 0.0 ${height+0.08}" rpy="0.0 0.0 0.0"/>
+    <origin xyz="0.55 0.0 ${height - 0.335 + 0.08}" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <link name="uwb_tag_link">
@@ -102,7 +102,7 @@
   <joint name="gps_back_joint" type="fixed">
     <parent link="base_link"/>
     <child link="gps_back_link"/>
-    <origin xyz="-0.6 0.0 ${height+0.015}" rpy="0.0 0.0 0.0"/>
+    <origin xyz="-0.6 0.0 ${height - 0.335 + 0.015}" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <link name="gps_front_link">
@@ -111,7 +111,7 @@
   <joint name="base_to_gps_front_joint" type="fixed">
     <parent link="base_link"/>
     <child link="gps_front_link"/>
-    <origin xyz="0.55 0.0 ${height+0.015}" rpy="0.0 0.0 0.0"/>
+    <origin xyz="0.55 -0.2 ${height - 0.335 + 0.015}" rpy="0.0 0.0 0.0"/>
   </joint>
 
 </robot>

@@ -17,10 +17,6 @@ def generate_launch_description():
         [FindPackageShare('mowbot_bringup'), 'config', 'laser.yaml']
     )
 
-    rviz_config_path = PathJoinSubstitution(
-        [FindPackageShare('mowbot_bringup'), 'rviz', 'sensors.rviz']
-    )
-
     return LaunchDescription([
 
         DeclareLaunchArgument(
@@ -39,12 +35,6 @@ def generate_launch_description():
             'laser',
             default_value='false',
             description='Whether to start the laser'
-        ),
-
-        DeclareLaunchArgument(
-            'rviz',
-            default_value='false',
-            description='Whether to start rviz'
         ),
 
         Node(
@@ -68,16 +58,6 @@ def generate_launch_description():
             parameters=[laser_config_path],
             output='screen',
             condition=IfCondition(LaunchConfiguration('laser'))
-        ),
-
-        Node(
-            namespace = LaunchConfiguration('namespace'),
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='screen',
-            condition=IfCondition(LaunchConfiguration('rviz')),
-            arguments=['-d', rviz_config_path]
         ),
 
     ])

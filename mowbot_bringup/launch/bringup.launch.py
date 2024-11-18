@@ -13,7 +13,10 @@ def generate_launch_description():
     extra_config_path = PathJoinSubstitution(
         [FindPackageShare('mowbot_bringup'), 'config', 'extra.yaml']
     )
-    
+
+    rviz_config_path = PathJoinSubstitution(
+        [FindPackageShare('mowbot_bringup'), 'rviz', 'mowbot.rviz']
+    )
 
     return LaunchDescription([  
 
@@ -72,7 +75,6 @@ def generate_launch_description():
             ),
             launch_arguments={
                 'namespace': LaunchConfiguration('namespace'),
-                'rviz': LaunchConfiguration('rviz'),
                 'imu': LaunchConfiguration('imu'),
                 'laser': LaunchConfiguration('laser')
             }.items()
@@ -90,5 +92,15 @@ def generate_launch_description():
                 ('imu/data_raw', 'mb_imu/data'),
                 ('imu/mag', '/mb_imu/mag')
             ]
+        ),
+
+        Node(
+            namespace = LaunchConfiguration('namespace'),
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            output='screen',
+            condition=IfCondition(LaunchConfiguration('rviz')),
+            arguments=['-d', rviz_config_path]
         ),
     ])
