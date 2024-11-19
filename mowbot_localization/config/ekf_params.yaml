@@ -11,7 +11,7 @@ ekf_filter_node:
 
     map_frame: map
     odom_frame: odom
-    base_link_frame: base_link
+    base_link_frame: base_footprint
     world_frame: odom
 
     odom0: /mowbot_base/odom
@@ -28,9 +28,9 @@ ekf_filter_node:
 
     imu0: /imu/data
     imu0_config: [false, false, false,
-                  true, true, true,
                   false, false, false,
-                  true, true, true,
+                  false, false, false,
+                  false, false, true,
                   false, false, false]
     imu0_nodelay: false
     imu0_differential: true  # If using a real robot you might want to set this to true, since usually absolute measurements from real imu's are not very accurate

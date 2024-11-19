@@ -18,6 +18,10 @@ def generate_launch_description():
         [FindPackageShare('mowbot_bringup'), 'rviz', 'mowbot.rviz']
     )
 
+    ekf_config_path = PathJoinSubstitution(
+        [FindPackageShare('mowbot_localization'), 'config', 'ekf_params.yaml']
+    )
+
     return LaunchDescription([  
 
         DeclareLaunchArgument(
@@ -55,6 +59,32 @@ def generate_launch_description():
             default_value='false',
             description='Use madgwick to fuse imu and magnetometer'
         ),
+
+        DeclareLaunchArgument(
+            name='rl',
+            default_value='false',
+            description='Use robot_localization'
+        ),
+
+        # DeclareLaunchArgument(
+        #     name='uros_serial_port',
+        #     default_value='/dev/MBB',
+        #     description='Serial port for uros communication'
+        # ),
+
+        # DeclareLaunchArgument(
+        #     name='uros_baudrate',
+        #     default_value='115200',
+        #     description='Baudrate for uros serial communication'
+        # ),
+
+        # Node(
+        #     package='micro_ros_agent',
+        #     executable='micro_ros_agent',
+        #     name='micro_ros_agent',
+        #     output='screen',
+        #     arguments=['serial', '--dev', LaunchConfiguration("uros_serial_port"), '--baudrate', LaunchConfiguration("uros_baudrate")]
+        # ),
 
         IncludeLaunchDescription(
             PathJoinSubstitution(
@@ -98,6 +128,18 @@ def generate_launch_description():
             remappings=[
                 ('imu/data_raw', 'mb_imu/data'),
                 ('imu/mag', '/mb_imu/mag')
+            ]
+        ),
+
+        Node(
+            namespace=LaunchConfiguration('namespace'),
+            condition=IfCondition(LaunchConfiguration("rl")),
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=[
+                ekf_config_path
             ]
         ),
 
