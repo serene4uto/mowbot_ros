@@ -22,6 +22,10 @@ def generate_launch_description():
         [FindPackageShare('mowbot_bringup'), 'config', 'rs.yaml'] 
     )
 
+    gps_config_path = PathJoinSubstitution(
+        [FindPackageShare('mowbot_bringup'), 'config', 'gps.yaml']
+    )
+
     return LaunchDescription([
 
         DeclareLaunchArgument(
@@ -46,6 +50,24 @@ def generate_launch_description():
             name='dcam',
             default_value='false',
             description='Whether to start the depth camera'
+        ),
+
+        DeclareLaunchArgument(
+            name='ntrip',
+            default_value='false',
+            description='Whether to start the ntrip client'
+        ),
+
+        DeclareLaunchArgument(
+            name='gps_front',
+            default_value='false',
+            description='Whether to start the front gps'
+        ),
+
+        DeclareLaunchArgument(
+            name='gps_rear',
+            default_value='false',
+            description='Whether to start the rear gps'
         ),
 
         Node(
@@ -80,6 +102,33 @@ def generate_launch_description():
                 'config_file': dcam_config_path
             }.items()   
         ),
-        
 
+        Node(
+            namespace=LaunchConfiguration('namespace'),
+            condition=IfCondition(LaunchConfiguration('ntrip')),
+            name='ntrip_client',
+            package='ntrip_client',
+            executable='ntrip_ros.py',
+            parameters=[gps_config_path],
+        ),  
+
+        Node(
+            namespace=LaunchConfiguration('namespace'),
+            condition=IfCondition(LaunchConfiguration('gps_front')),
+            name='ublox_gps_front_node',
+            package='ublox_gps',
+            executable='ublox_gps_node',
+            output='both',
+            parameters=[gps_config_path]
+        ),
+
+        Node(
+            namespace=LaunchConfiguration('namespace'),
+            condition=IfCondition(LaunchConfiguration('gps_rear')),
+            name='ublox_gps_rear_node',
+            package='ublox_gps',
+            executable='ublox_gps_node',
+            output='both',
+            parameters=[gps_config_path]
+        ),
     ])

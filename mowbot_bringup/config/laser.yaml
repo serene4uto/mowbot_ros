@@ -2,7 +2,7 @@
   rplidar_node:
     ros__parameters:
       channel_type: "serial"
-      serial_port: "/dev/RPLIDAR_C2"
+      serial_port: "/dev/RPLIDAR-C2"
       serial_baudrate: 1000000  # Integer
       frame_id: "laser_link"
       inverted: false            # Boolean

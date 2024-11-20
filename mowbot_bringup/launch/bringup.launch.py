@@ -86,6 +86,25 @@ def generate_launch_description():
         #     arguments=['serial', '--dev', LaunchConfiguration("uros_serial_port"), '--baudrate', LaunchConfiguration("uros_baudrate")]
         # ),
 
+
+        DeclareLaunchArgument(
+            'ntrip',
+            default_value='false',
+            description='Whether to start the ntrip client'
+        ),
+
+        DeclareLaunchArgument(
+            'gps_front',
+            default_value='false',
+            description='Whether to start the front gps'
+        ),
+
+        DeclareLaunchArgument(
+            'gps_rear',
+            default_value='false',
+            description='Whether to start the rear gps'
+        ),
+
         IncludeLaunchDescription(
             PathJoinSubstitution(
                 [FindPackageShare('mowbot_description'), 'launch', 'description.launch.py']
@@ -113,7 +132,10 @@ def generate_launch_description():
                 'namespace': LaunchConfiguration('namespace'),
                 'imu': LaunchConfiguration('imu'),
                 'laser': LaunchConfiguration('laser'),
-                'dcam': LaunchConfiguration('dcam')
+                'dcam': LaunchConfiguration('dcam'),
+                'ntrip': LaunchConfiguration('ntrip'),
+                'gps_front': LaunchConfiguration('gps_front'),
+                'gps_rear': LaunchConfiguration('gps_rear'),
             }.items()
         ),
 
