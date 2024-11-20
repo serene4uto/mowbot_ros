@@ -10,7 +10,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
     mapviz_config_path = PathJoinSubstitution(
-        [FindPackageShare('mowbot_localization'), 'config', 'gps_display.mvc']
+        [FindPackageShare('mowbot_bringup'), 'config', 'gps_display.mvc']
     )
 
     return LaunchDescription([
