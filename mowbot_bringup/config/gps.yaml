@@ -1,6 +1,7 @@
 /**:
   ublox_gps_front_node:
     ros__parameters:
+      config_on_startup: false
       debug: 0                    # Range 0-4 (0 means no debug statements will print)
       device: /dev/UBLOX-GNSS-FRONT
       frame_id: gps_front_link
@@ -37,6 +38,7 @@
 /**:
   ublox_gps_rear_node:
     ros__parameters:
+      config_on_startup: false
       debug: 0                    # Range 0-4 (0 means no debug statements will print)
       device: /dev/UBLOX-GNSS-REAR
       frame_id: gps_rear_link
@@ -49,7 +51,7 @@
         beidou: true             
         qzss: true                
 
-      dynamic_model: portable    # Dynamic Platform Model
+      dynamic_model: automotive    # Dynamic Platform Model
       rate: 4.0
       nav_rate: 1
       fix_mode: auto

@@ -7,7 +7,7 @@ enable_antialiasing: true
 show_displays: true
 show_status_bar: true
 show_capture_tools: true
-window_width: 1920
+window_width: 1848
 window_height: 1016
 view_scale: 0.564473748
 offset_x: -55.0469894
@@ -35,4 +35,21 @@ displays:
       draw_style: points
       position_tolerance: 0
       buffer_size: 1
-    
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
+  - type: mapviz_plugins/navsat
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      topic: /ublox_gps_front_node/fix
+      color: "#00ff00"
+      draw_style: points
+      position_tolerance: 0
+      buffer_size: 1
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2

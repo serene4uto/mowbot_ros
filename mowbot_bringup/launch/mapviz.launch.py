@@ -35,17 +35,18 @@ def generate_launch_description():
             name="initialize_origin",
             parameters=[
                 {"local_xy_frame": "map"},
+                # {"local_xy_origin": "auto"},
                 {"local_xy_origin": "origin"},
                 {
                     "local_xy_origins": [
-                        36.1166293,
-                        128.3647848,
+                        36.1142823,
+                        128.4212675,
                         0.0,
                         0.0,
                     ]
                 },
             ],
-            remappings=[('/fix', '/ublox_gps_rear_node/fix')],
+            remappings=[('/gps', '/ublox_gps_rear_node/fix')],
         ),
 
         Node(
