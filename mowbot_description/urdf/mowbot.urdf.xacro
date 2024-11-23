@@ -112,7 +112,7 @@
   <joint name="base_to_gps_right_joint" type="fixed">
     <parent link="base_link"/>
     <child link="gps_right_link"/>
-    <origin xyz="0.55 -0.48 ${height - 0.335 + 0.12}" rpy="0.0 0.0 0.0"/>
+    <origin xyz="0.50 -0.52 ${height - 0.335 + 0.12}" rpy="0.0 0.0 0.0"/>
   </joint>
 
   <link name="gps_left_link">
@@ -121,7 +121,7 @@
   <joint name="base_to_gps_left_joint" type="fixed">
     <parent link="base_link"/>
     <child link="gps_left_link"/>
-    <origin xyz="0.55 0.48 ${height - 0.335 + 0.12}" rpy="0.0 0.0 0.0"/>
+    <origin xyz="0.50 0.52 ${height - 0.335 + 0.12}" rpy="0.0 0.0 0.0"/>
   </joint>
 
 </robot>
