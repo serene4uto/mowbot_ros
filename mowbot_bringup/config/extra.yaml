@@ -2,12 +2,12 @@
   madgwick_filter_node:
     ros__parameters:
       stateless: false
-      use_mag: true
+      use_mag: false
       publish_tf: false
       reverse_tf: false
       fixed_frame: "odom"
       constant_dt: 0.0
-      publish_debug_topics: false
+      publish_debug_topics: true
       world_frame: "enu"
       gain: 0.1
       zeta: 0.0

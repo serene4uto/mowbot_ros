@@ -31,7 +31,7 @@
       magnetometer_publisher:
         enabled: true
         topic_name: /magnetometer
-        frame_id: compass
+        frame_id: mag_link #compass
         coefficient: 0.00000001 # Linear calibration parameters: coefficient
         addition: 0.0 # and addendum
         covariance:

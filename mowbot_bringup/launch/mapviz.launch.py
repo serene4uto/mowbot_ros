@@ -46,8 +46,18 @@ def generate_launch_description():
                     ]
                 },
             ],
-            remappings=[('/gps', '/ublox_gps_rear_node/fix')],
+            remappings=[('/fix', '/ublox_gpsr_node/fix')],
         ),
+
+        # Node(
+        #     namespace=LaunchConfiguration('namespace'),
+        #     package="swri_transform_util",
+        #     executable="initialize_origin.py",
+        #     name="initialize_origin",
+        #     remappings=[
+        #         ("fix", "ublox_gpsr_node/fix"),
+        #     ],
+        # ),
 
         Node(
             package="tf2_ros",

@@ -36,7 +36,7 @@
   <link name="base_link">
   </link>
 
-  <joint name="base_to_footprint_joint" type="fixed">
+  <joint name="footprint_to_base_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link"/>
     <origin xyz="0.0 0.0 0.335" rpy="0.0 0.0 0.0"/>
@@ -55,7 +55,17 @@
     <parent link="base_link"/>
     <child link="imu_link"/>
     <origin xyz="-0.14 0.0 ${height - 0.335 + 0.015}" rpy="0.0 0.0 0.0"/>
+    <!-- <origin xyz="-0.14 0.0 ${height - 0.335 + 0.015}" rpy="0.0 0.0 ${PI}"/> -->
   </joint>
+
+  <link name="mag_link"></link>
+
+  <joint name="imu_to_mag_joint" type="fixed">
+    <parent link="imu_link"/>
+    <child link="mag_link"/>
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+  </joint>
+
 
   <link name="laser_link">
     <visual>
@@ -96,22 +106,22 @@
     <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
   </joint>
 
-  <link name="gps_rear_link">
+  <link name="gps_right_link">
   </link>
 
-  <joint name="base_to_gps_rear_joint" type="fixed">
+  <joint name="base_to_gps_right_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="gps_rear_link"/>
-    <origin xyz="-0.6 0.0 ${height - 0.335 + 0.015}" rpy="0.0 0.0 0.0"/>
+    <child link="gps_right_link"/>
+    <origin xyz="0.55 -0.48 ${height - 0.335 + 0.12}" rpy="0.0 0.0 0.0"/>
   </joint>
 
-  <link name="gps_front_link">
+  <link name="gps_left_link">
   </link>
 
-  <joint name="base_to_gps_front_joint" type="fixed">
+  <joint name="base_to_gps_left_joint" type="fixed">
     <parent link="base_link"/>
-    <child link="gps_front_link"/>
-    <origin xyz="0.55 -0.2 ${height - 0.335 + 0.015}" rpy="0.0 0.0 0.0"/>
+    <child link="gps_left_link"/>
+    <origin xyz="0.55 0.48 ${height - 0.335 + 0.12}" rpy="0.0 0.0 0.0"/>
   </joint>
 
 </robot>

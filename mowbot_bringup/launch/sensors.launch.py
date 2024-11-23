@@ -59,15 +59,15 @@ def generate_launch_description():
         ),
 
         DeclareLaunchArgument(
-            name='gps_front',
+            name='gpsl',
             default_value='false',
-            description='Whether to start the front gps'
+            description='Whether to start the left gps'
         ),
 
         DeclareLaunchArgument(
-            name='gps_rear',
+            name='gpsr',
             default_value='false',
-            description='Whether to start the rear gps'
+            description='Whether to start the right gps'
         ),
 
         Node(
@@ -114,8 +114,8 @@ def generate_launch_description():
 
         Node(
             namespace=LaunchConfiguration('namespace'),
-            condition=IfCondition(LaunchConfiguration('gps_front')),
-            name='ublox_gps_front_node',
+            condition=IfCondition(LaunchConfiguration('gpsl')),
+            name='ublox_gpsl_node',
             package='ublox_gps',
             executable='ublox_gps_node',
             output='both',
@@ -124,8 +124,8 @@ def generate_launch_description():
 
         Node(
             namespace=LaunchConfiguration('namespace'),
-            condition=IfCondition(LaunchConfiguration('gps_rear')),
-            name='ublox_gps_rear_node',
+            condition=IfCondition(LaunchConfiguration('gpsr')),
+            name='ublox_gpsr_node',
             package='ublox_gps',
             executable='ublox_gps_node',
             output='both',

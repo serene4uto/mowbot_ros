@@ -7,11 +7,11 @@ enable_antialiasing: true
 show_displays: true
 show_status_bar: true
 show_capture_tools: true
-window_width: 1848
-window_height: 1016
-view_scale: 0.564473748
-offset_x: -55.0469894
-offset_y: -4.65194941
+window_width: 1208
+window_height: 736
+view_scale: 0.866783917
+offset_x: 71.2234268
+offset_y: -34.0852661
 use_latest_transforms: true
 background: "#a0a0a4"
 image_transport: raw
@@ -25,13 +25,25 @@ displays:
         []
       bing_api_key: AkCDUXwYzM3w36XYcNeT0kNOFhpTiQuwluXkQlFBs1WhFbknP2_2iDBXeL_WzXCc
       source: Bing Maps (terrain)
+  - type: mapviz_plugins/tf_frame
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      frame: base_link
+      color: "#00ff00"
+      draw_style: arrows
+      position_tolerance: 0
+      buffer_size: 1
+      static_arrow_sizes: true
+      arrow_size: 72
   - type: mapviz_plugins/navsat
     name: new display
     config:
       visible: true
       collapsed: false
-      topic: /ublox_gps_rear_node/fix
-      color: "#55aaff"
+      topic: /ublox_gpsr_node/fix
+      color: "#00ff00"
       draw_style: points
       position_tolerance: 0
       buffer_size: 1
@@ -44,8 +56,8 @@ displays:
     config:
       visible: true
       collapsed: false
-      topic: /ublox_gps_front_node/fix
-      color: "#00ff00"
+      topic: /ublox_gpsl_node/fix
+      color: "#00aaff"
       draw_style: points
       position_tolerance: 0
       buffer_size: 1
