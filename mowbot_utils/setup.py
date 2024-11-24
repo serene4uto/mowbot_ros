@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pointcloud2_to_laserscan = mowbot_utils.pointcloud2_to_laserscan:main',
+            'dual_gps_compass = mowbot_utils.dual_gps_compass:main',
         ],
     },
 )
