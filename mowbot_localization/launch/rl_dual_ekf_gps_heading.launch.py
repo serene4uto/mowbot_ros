@@ -39,12 +39,7 @@ def generate_launch_description():
                 ("imu", "mb_imu/data"),
                 #output
                 ("odometry/filtered", "odometry/local")
-                
-                # #input
-                # ("odom", "mowbot_base/odom"),
-                # ("imu", "imu/data"),
-                # #output
-                # ("odometry/filtered", "odometry/local")
+
             ]
         ),
 
@@ -65,13 +60,7 @@ def generate_launch_description():
                 ("odometry/gps", "odometry/gpsr"),
                 #output
                 ("odometry/filtered", "odometry/global")
-                
-                # #input
-                # ("odom", "mowbot_base/odom"),
-                # ("imu", "mb_imu/data"),
-                # ("odometry/gps", "odometry/gpsr"),
-                # #output
-                # ("odometry/filtered", "odometry/global")
+
                 
             ]
         ),
@@ -90,20 +79,10 @@ def generate_launch_description():
                 #input
                 ("odometry/filtered", "odometry/global"),
                 ("gps/fix", "/ublox_gpsr_node/fix"),
-                ("imu", "imu/data"),
+                ("imu", "mb_imu/data"),
                 #output
                 ("odometry/gps", "odometry/gpsr"),
                 ("gps/filtered", "combined_gps/filtered"),
-                
-                
-                
-                # #input
-                # ("odometry/filtered", "odometry/global"),
-                # ("gps/fix", "/ublox_gpsr_node/fix"),
-                # ("imu", "mb_imu/data"),
-                # #output
-                # ("odometry/gps", "odometry/gpsr" ),
-                # ("gps/filtered", "gpsr/filtered"), 
     
             ]
         ),
