@@ -23,20 +23,9 @@ ekf_filter_node_odom:
     odom0_differential: false
     odom0_relative: false
 
-    # only heading yaw is used from the dual_gps_heading pose
-    pose0: pose/dual_gps_heading
-    pose0_config: [false, false, false,  # x, y, z
-                  false, false, true,   # roll, pitch, yaw
-                  false, false, false,  # vx, vy, vz
-                  false, false, false,  # vroll, vpitch, vyaw
-                  false, false, false]  # ax, ay, az
-    pose0_queue_size: 10
-    pose0_differential: false
-    pose0_relative: false
-
     imu0: imu
     imu0_config: [false, false, false,
-                  false,  false,  false,
+                  false,  false,  true,
                   false, false, false,
                   false,  false,  false,
                   false,  false,  false]
@@ -96,20 +85,9 @@ ekf_filter_node_map:
     odom1_differential: false
     odom1_relative: false
 
-    # only heading yaw is used from the dual_gps_heading pose
-    pose0: pose/dual_gps_heading
-    pose0_config: [false, false, false,  # x, y, z
-                  false, false, true,   # roll, pitch, yaw
-                  false, false, false,  # vx, vy, vz
-                  false, false, false,  # vroll, vpitch, vyaw
-                  false, false, false]  # ax, ay, az
-    pose0_queue_size: 10
-    pose0_differential: false
-    pose0_relative: false
-
     imu0: imu
     imu0_config: [false, false, false,
-                  false,  false,  false,
+                  false,  false,  true,
                   false, false, false,
                   false,  false,  false,
                   false,  false,  false]
@@ -143,7 +121,8 @@ navsat_transform:
     magnetic_declination_radians: 0.0
     yaw_offset: 0.0
     zero_altitude: true
-    broadcast_utm_transform: true
+    # broadcast_utm_transform: true
+    broadcast_cartesian_transform: true
     publish_filtered_gps: true
     use_odometry_yaw: true
     wait_for_datum: false 

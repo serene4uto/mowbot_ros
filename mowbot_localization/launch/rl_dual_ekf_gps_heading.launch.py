@@ -11,8 +11,8 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
     rlgps_config_path = PathJoinSubstitution(
-        # [FindPackageShare('mowbot_localization'), 'config', 'dual_ekf_gps_params.yaml']
-        [FindPackageShare('mowbot_localization'), 'config', 'dual_ekf_gps_params_2.yaml']
+        [FindPackageShare('mowbot_localization'), 'config', 'dual_ekf_gps_params.yaml']
+        # [FindPackageShare('mowbot_localization'), 'config', 'dual_ekf_gps_params_2.yaml']
     )
 
     return LaunchDescription([  
@@ -39,6 +39,12 @@ def generate_launch_description():
                 ("imu", "mb_imu/data"),
                 #output
                 ("odometry/filtered", "odometry/local")
+                
+                # #input
+                # ("odom", "mowbot_base/odom"),
+                # ("imu", "imu/data"),
+                # #output
+                # ("odometry/filtered", "odometry/local")
             ]
         ),
 
@@ -52,13 +58,21 @@ def generate_launch_description():
                 rlgps_config_path,
                 {"use_sim_time": False},
             ],
-            remappings=[  
+            remappings=[
                 #input
                 ("odom", "mowbot_base/odom"),
                 ("imu", "mb_imu/data"),
                 ("odometry/gps", "odometry/gpsr"),
                 #output
-                ("odometry/filtered", "odometry/global")   
+                ("odometry/filtered", "odometry/global")
+                
+                # #input
+                # ("odom", "mowbot_base/odom"),
+                # ("imu", "mb_imu/data"),
+                # ("odometry/gps", "odometry/gpsr"),
+                # #output
+                # ("odometry/filtered", "odometry/global")
+                
             ]
         ),
 
@@ -76,10 +90,20 @@ def generate_launch_description():
                 #input
                 ("odometry/filtered", "odometry/global"),
                 ("gps/fix", "/ublox_gpsr_node/fix"),
-                ("imu", "mb_imu/data"),
+                ("imu", "imu/data"),
                 #output
-                ("odometry/gps", "odometry/gpsr" ),
-                ("gps/filtered", "gpsr/filtered"), 
+                ("odometry/gps", "odometry/gpsr"),
+                ("gps/filtered", "combined_gps/filtered"),
+                
+                
+                
+                # #input
+                # ("odometry/filtered", "odometry/global"),
+                # ("gps/fix", "/ublox_gpsr_node/fix"),
+                # ("imu", "mb_imu/data"),
+                # #output
+                # ("odometry/gps", "odometry/gpsr" ),
+                # ("gps/filtered", "gpsr/filtered"), 
     
             ]
         ),
