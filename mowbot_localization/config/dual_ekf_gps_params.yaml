@@ -16,23 +16,34 @@ ekf_filter_node_odom:
     odom0: odom
     odom0_config: [false, false, false, # x, y, z
                   false, false, false,  # roll, pitch, yaw
-                  true,  true,  true,   # vx, vy, vz
-                  false, false, true,   # vroll, vpitch, vyaw
+                  true,  true,  false,   # vx, vy, vz
+                  false, false, false,   # vroll, vpitch, vyaw
                   false, false, false]  # ax, ay, az
     odom0_queue_size: 10
     odom0_differential: false
     odom0_relative: false
 
-    imu0: imu
-    imu0_config: [false, false, false,  # x, y, z
-                  false,  false,  true, # roll, pitch, yaw
+    # only heading yaw is used from the dual_gps_heading pose
+    pose0: pose/dual_gps_heading
+    pose0_config: [false, false, false,  # x, y, z
+                  false, false, true,   # roll, pitch, yaw
                   false, false, false,  # vx, vy, vz
-                  false,  false,  false, # vroll, vpitch, vyaw
-                  false,  false,  false] # ax, ay, az
-    imu0_differential: true  # If using a real robot you might want to set this to true, since usually absolute measurements from real imu's are not very accurate
-    imu0_relative: false
-    imu0_queue_size: 10
-    imu0_remove_gravitational_acceleration: true
+                  false, false, false,  # vroll, vpitch, vyaw
+                  false, false, false]  # ax, ay, az
+    pose0_queue_size: 10
+    pose0_differential: false
+    pose0_relative: false
+
+    # imu0: imu
+    # imu0_config: [false, false, false,  # x, y, z
+    #               false,  false,  false, # roll, pitch, yaw
+    #               false, false, false,  # vx, vy, vz
+    #               false,  false,  true, # vroll, vpitch, vyaw
+    #               false,  false,  false] # ax, ay, az
+    # imu0_differential: true  # If using a real robot you might want to set this to true, since usually absolute measurements from real imu's are not very accurate
+    # imu0_relative: false
+    # imu0_queue_size: 10
+    # imu0_remove_gravitational_acceleration: true
 
     use_control: false
 
@@ -68,8 +79,8 @@ ekf_filter_node_map:
     odom0: odom
     odom0_config: [false, false, false,
                   false, false, false,
-                  true,  true,  true,
-                  false, false, true,
+                  true,  true,  false,
+                  false, false, false,
                   false, false, false]
     odom0_queue_size: 10
     odom0_differential: false
@@ -85,16 +96,28 @@ ekf_filter_node_map:
     odom1_differential: false
     odom1_relative: false
 
-    imu0: imu
-    imu0_config: [false, false, false,
-                  false,  false,  true,
-                  false, false, false,
-                  false,  false,  false,
-                  false,  false,  false]
-    imu0_differential: true  # If using a real robot you might want to set this to true, since usually absolute measurements from real imu's are not very accurate
-    imu0_relative: false
-    imu0_queue_size: 10
-    imu0_remove_gravitational_acceleration: true
+    # only heading yaw is used from the dual_gps_heading pose
+    pose0: pose/dual_gps_heading
+    pose0_config: [false, false, false,  # x, y, z
+                  false, false, true,   # roll, pitch, yaw
+                  false, false, false,  # vx, vy, vz
+                  false, false, false,  # vroll, vpitch, vyaw
+                  false, false, false]  # ax, ay, az
+    pose0_queue_size: 10
+    pose0_differential: false
+    pose0_relative: false
+
+
+    # imu0: imu
+    # imu0_config: [false, false, false,  # x, y, z
+    #               false,  false,  false, # roll, pitch, yaw
+    #               false, false, false,  # vx, vy, vz
+    #               false,  false,  true, # vroll, vpitch, vyaw
+    #               false,  false,  false] # ax, ay, az
+    # imu0_differential: true  # If using a real robot you might want to set this to true, since usually absolute measurements from real imu's are not very accurate
+    # imu0_relative: false
+    # imu0_queue_size: 10
+    # imu0_remove_gravitational_acceleration: true
 
     use_control: false
 
@@ -118,7 +141,7 @@ navsat_transform:
   ros__parameters:
     frequency: 30.0
     delay: 3.0
-    magnetic_declination_radians: −0.1529 # equal to -8.75 degrees at gumi, check: https://www.magnetic-declination.com/
+    magnetic_declination_radians: 0.0 #−0.1529 # equal to -8.75 degrees at gumi, check: https://www.magnetic-declination.com/
     yaw_offset: 0.0
     zero_altitude: true
     broadcast_utm_transform: true

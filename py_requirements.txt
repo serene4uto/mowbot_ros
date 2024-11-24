@@ -2,3 +2,4 @@ numpy
 haversine
 pyproj
 pytz
+scipy

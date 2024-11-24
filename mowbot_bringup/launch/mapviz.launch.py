@@ -29,35 +29,35 @@ def generate_launch_description():
             parameters=[{"config": mapviz_config_path}],
         ),
 
-        Node(
-            package="swri_transform_util",
-            executable="initialize_origin.py",
-            name="initialize_origin",
-            parameters=[
-                {"local_xy_frame": "map"},
-                # {"local_xy_origin": "auto"},
-                {"local_xy_origin": "origin"},
-                {
-                    "local_xy_origins": [
-                        36.1142823,
-                        128.4212675,
-                        0.0,
-                        0.0,
-                    ]
-                },
-            ],
-            remappings=[('/fix', '/ublox_gpsr_node/fix')],
-        ),
-
         # Node(
-        #     namespace=LaunchConfiguration('namespace'),
         #     package="swri_transform_util",
         #     executable="initialize_origin.py",
         #     name="initialize_origin",
-        #     remappings=[
-        #         ("fix", "ublox_gpsr_node/fix"),
+        #     parameters=[
+        #         {"local_xy_frame": "map"},
+        #         # {"local_xy_origin": "auto"},
+        #         {"local_xy_origin": "origin"},
+        #         {
+        #             "local_xy_origins": [
+        #                 36.1142823,
+        #                 128.4212675,
+        #                 0.0,
+        #                 0.0,
+        #             ]
+        #         },
         #     ],
+        #     remappings=[('/fix', '/ublox_gpsr_node/fix')],
         # ),
+
+        Node(
+            namespace=LaunchConfiguration('namespace'),
+            package="swri_transform_util",
+            executable="initialize_origin.py",
+            name="initialize_origin",
+            remappings=[
+                ("fix", "combined_gps/fix"),
+            ],
+        ),
 
         Node(
             package="tf2_ros",
