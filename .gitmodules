@@ -1,0 +1,4 @@
+[submodule "mapviz"]
+    path = depends/mapviz
+    url = https://github.com/swri-robotics/mapviz.git
+    branch = ros2-devel
