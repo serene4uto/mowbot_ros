@@ -15,6 +15,7 @@ install(DIRECTORY
   config
   launch
   param
+  mapviz
   rviz
   DESTINATION share/${PROJECT_NAME}
 )

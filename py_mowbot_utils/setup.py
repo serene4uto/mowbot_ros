@@ -21,6 +21,8 @@ setup(
     entry_points={
         'console_scripts': [
             'dual_gps_compass = py_mowbot_utils.dual_gps_compass:main',
+            'gps_waypoints_follower = py_mowbot_utils.gps_waypoints_follower:main',
+            'gps_waypoints_planner = py_mowbot_utils.gps_waypoints_planner:main',
         ],
     },
 )
