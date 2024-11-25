@@ -165,10 +165,10 @@ controller_server:
       min_vel_y: 0.0                         # Minimum y-axis velocity; typically set to zero for differential robots.
       max_vel_x: 0.26                        # Maximum x-axis velocity.
       max_vel_y: 0.0                         # Maximum y-axis velocity; set to zero for differential robots.
-      max_vel_theta: 2.0                     # Maximum angular velocity.
+      max_vel_theta: 1.0                     # Maximum angular velocity.
       min_speed_xy: 0.0                      # Minimum combined speed in x and y.
       max_speed_xy: 0.26                     # Maximum combined speed in x and y.
-      min_speed_theta: 1.5                   # Minimum angular speed.
+      min_speed_theta: 0.0                   # Minimum angular speed.
       acc_lim_x: 2.5                         # Acceleration limit in x-axis.
       acc_lim_y: 0.0                         # Acceleration limit in y-axis; set to zero for differential robots.
       acc_lim_theta: 3.2                     # Angular acceleration limit.
@@ -402,8 +402,8 @@ planner_server:
     planner_plugins: ["GridBased"]            # List of planner plugins to use; "GridBased" is the default.
 
     GridBased:
-      # plugin: "nav2_navfn_planner/NavfnPlanner" # Grid-based planning plugin using NavfnPlanner.
-      plugin: "nav2_smac_planner/SmacPlannerLattice" # Grid-based planning plugin using SmacPlannerLattice.
+      plugin: "nav2_navfn_planner/NavfnPlanner" # Grid-based planning plugin using NavfnPlanner.
+      # plugin: "nav2_smac_planner/SmacPlannerLattice" # Grid-based planning plugin using SmacPlannerLattice.
       tolerance: 0.5                           # Allowed tolerance (meters) around the goal for successful planning.
       use_astar: false                         # If true, uses A* search algorithm; false defaults to Dijkstra.
       allow_unknown: true                      # Allows the planner to navigate through unknown areas in the map.
@@ -479,8 +479,8 @@ behavior_server:
     robot_base_frame: base_footprint                # Frame representing the base of the robot.
     transform_tolerance: 0.1                   # Allowed tolerance for frame transformations.
     simulate_ahead_time: 2.0                   # Duration (seconds) to simulate movement ahead for planning.
-    max_rotational_vel: 2.0                    # Maximum rotational velocity (rad/s).
-    min_rotational_vel: 1.5                    # Minimum rotational velocity (rad/s).
+    max_rotational_vel: 1.0                    # Maximum rotational velocity (rad/s).
+    min_rotational_vel: 0.4                    # Minimum rotational velocity (rad/s).
     rotational_acc_lim: 3.2                    # Rotational acceleration limit (rad/s^2).
 
 robot_state_publisher:
@@ -533,8 +533,8 @@ velocity_smoother:
     smoothing_frequency: 20.0           # Frequency (Hz) at which velocity smoothing is applied to incoming commands.
     scale_velocities: False             # Determines if velocities should be scaled based on maximum values.
     feedback: "OPEN_LOOP"               # Feedback mode; OPEN_LOOP assumes no feedback from the odometry.
-    max_velocity: [0.26, 0.0, 2.0]      # Maximum allowable velocities [linear x, linear y, angular z].
-    min_velocity: [-0.26, 0.0, -2.0]    # Minimum allowable velocities [linear x, linear y, angular z].
+    max_velocity: [0.26, 0.0, 1.0]      # Maximum allowable velocities [linear x, linear y, angular z].
+    min_velocity: [-0.26, 0.0, -1.0]    # Minimum allowable velocities [linear x, linear y, angular z].
     max_accel: [2.5, 0.0, 3.2]          # Maximum acceleration limits [linear x, linear y, angular z].
     max_decel: [-2.5, 0.0, -3.2]        # Maximum deceleration limits [linear x, linear y, angular z].
     odom_topic: "odom"                  # Topic to subscribe to for odometry data.
