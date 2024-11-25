@@ -55,7 +55,7 @@ def generate_launch_description():
             executable="initialize_origin.py",
             name="initialize_origin",
             remappings=[
-                ("fix", "ublox_gpsr_node/fix"),
+                ("fix", "combined_gps/fix"),
             ],
         ),
 

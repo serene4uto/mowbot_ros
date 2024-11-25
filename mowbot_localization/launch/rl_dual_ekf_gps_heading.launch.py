@@ -11,7 +11,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
 
     rlgps_config_path = PathJoinSubstitution(
-        [FindPackageShare('mowbot_localization'), 'config', 'dual_ekf_gps_params.yaml']
+        [FindPackageShare('mowbot_localization'), 'config', 'dual_ekf_gps_params_1.yaml']
         # [FindPackageShare('mowbot_localization'), 'config', 'dual_ekf_gps_params_2.yaml']
     )
 
@@ -57,7 +57,7 @@ def generate_launch_description():
                 #input
                 ("odom", "mowbot_base/odom"),
                 ("imu", "mb_imu/data"),
-                ("odometry/gps", "odometry/gpsr"),
+                ("odometry/gps", "odometry/combined_gps"),
                 #output
                 ("odometry/filtered", "odometry/global")
 
@@ -78,10 +78,10 @@ def generate_launch_description():
             remappings=[
                 #input
                 ("odometry/filtered", "odometry/global"),
-                ("gps/fix", "/ublox_gpsr_node/fix"),
+                ("gps/fix", "/combined_gps/fix"),
                 ("imu", "mb_imu/data"),
                 #output
-                ("odometry/gps", "odometry/gpsr"),
+                ("odometry/gps", "odometry/combined_gps"),
                 ("gps/filtered", "combined_gps/filtered"),
     
             ]
