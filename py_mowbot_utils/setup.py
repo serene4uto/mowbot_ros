@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'mowbot_utils'
+package_name = 'py_mowbot_utils'
 
 setup(
     name=package_name,
@@ -20,9 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'pointcloud2_to_laserscan = mowbot_utils.pointcloud2_to_laserscan:main',
-            'dual_gps_compass = mowbot_utils.dual_gps_compass:main',
-            'yaw_check = mowbot_utils.yaw_check:main',
+            'dual_gps_compass = py_mowbot_utils.dual_gps_compass:main',
         ],
     },
 )
