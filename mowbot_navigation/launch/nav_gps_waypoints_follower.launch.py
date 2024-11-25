@@ -49,25 +49,25 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution(
-                    [FindPackageShare('mowbot_localization'), 'launch', 'localization.launch.py']
+                    [FindPackageShare('mowbot_localization'), 'launch', 'rl_dual_ekf_navsat.launch.py']
                 )
             ),
             condition=IfCondition(LaunchConfiguration("rl"))
         ),
         
         # nav2
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource(
-        #         PathJoinSubstitution(
-        #             [FindPackageShare('nav2_bringup'), 'launch', 'navigation_launch.py']
-        #         )
-        #     ),
-        #     launch_arguments={
-        #         "use_sim_time": "False",
-        #         "params_file": configured_params,
-        #         "autostart": "True",
-        #     }.items(),
-        # ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                PathJoinSubstitution(
+                    [FindPackageShare('nav2_bringup'), 'launch', 'navigation_launch.py']
+                )
+            ),
+            launch_arguments={
+                "use_sim_time": "False",
+                "params_file": configured_params,
+                "autostart": "True",
+            }.items(),
+        ),
 
         # rviz
         IncludeLaunchDescription(
