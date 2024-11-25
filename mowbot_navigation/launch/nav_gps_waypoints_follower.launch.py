@@ -56,18 +56,18 @@ def generate_launch_description():
         ),
         
         # nav2
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                PathJoinSubstitution(
-                    [FindPackageShare('nav2_bringup'), 'launch', 'navigation_launch.py']
-                )
-            ),
-            launch_arguments={
-                "use_sim_time": "False",
-                "params_file": configured_params,
-                "autostart": "True",
-            }.items(),
-        ),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource(
+        #         PathJoinSubstitution(
+        #             [FindPackageShare('nav2_bringup'), 'launch', 'navigation_launch.py']
+        #         )
+        #     ),
+        #     launch_arguments={
+        #         "use_sim_time": "False",
+        #         "params_file": configured_params,
+        #         "autostart": "True",
+        #     }.items(),
+        # ),
 
         # rviz
         IncludeLaunchDescription(
