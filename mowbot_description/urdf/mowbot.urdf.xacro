@@ -79,7 +79,7 @@
   <joint name="base_to_laser_joint" type="fixed">
     <parent link="base_link"/>
     <child link="laser_link"/>
-    <origin xyz="-0.1 0.0 ${height - 0.335 + 0.16}" rpy="0.0 0.0 ${PI}"/>
+    <origin xyz="0.2 0.0 ${height - 0.335 + 0.2}" rpy="0.0 0.0 ${PI}"/>
   </joint>
 
   <link name="camera_link">

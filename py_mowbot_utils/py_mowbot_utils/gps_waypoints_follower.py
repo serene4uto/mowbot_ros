@@ -2,14 +2,14 @@ import rclpy
 from rclpy.node import Node
 from nav2_simple_commander.robot_navigator import BasicNavigator
 import yaml
-from ament_index_python.packages import get_package_share_directory
-import os
-import sys
 import time
 import tkinter as tk
 from tkinter import filedialog
 from py_mowbot_utils.gps_utils import latLonYaw2Geopose
 from sensor_msgs.msg import NavSatFix
+
+from geometry_msgs.msg import PoseStamped
+from robot_localization.srv import FromLL
 
 
 class YamlWaypointParser:
@@ -37,8 +37,6 @@ class GpsWaypointFollowerGUI(tk.Tk, Node):
     def __init__(self):
         tk.Tk.__init__(self)
         Node.__init__(self, 'gps_waypoint_follower')
-        self.navigator = BasicNavigator("basic_navigator")
-        self.wp_parser = None
 
         self.title("GPS Waypoint Follower GUI")
         self.resizable(False, False)
@@ -62,6 +60,12 @@ class GpsWaypointFollowerGUI(tk.Tk, Node):
         self.start_button.grid(row=1, column=0, sticky='ew')
         self.stop_button.grid(row=1, column=2, sticky='ew')
 
+        self.navigator = BasicNavigator("basic_navigator")
+        self.wp_parser = None
+        self.localizer = self.create_client(FromLL,  '/fromLL')
+        while not self.localizer.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('service not available, waiting again...')
+
         self.state_check_timer = self.create_timer(1, self.check_nav_state)
         self.state_check_timer.cancel()
 
@@ -79,16 +83,50 @@ class GpsWaypointFollowerGUI(tk.Tk, Node):
         self.stop_button.config(state=tk.NORMAL)
 
         self.wp_parser = YamlWaypointParser(self.load_textbox.get())
-        for wp in self.wp_parser.get_wps():
+        # for wp in self.wp_parser.get_wps():
+        #     loaded_wp_msg = NavSatFix()
+        #     loaded_wp_msg.latitude = wp.position.latitude
+        #     loaded_wp_msg.longitude = wp.position.longitude
+        #     self.selected_wps_pub.publish(loaded_wp_msg)
+        #     time.sleep(0.5)
+
+        
+        wps = self.wp_parser.get_wps()
+
+        for wp in wps:
             loaded_wp_msg = NavSatFix()
             loaded_wp_msg.latitude = wp.position.latitude
             loaded_wp_msg.longitude = wp.position.longitude
             self.selected_wps_pub.publish(loaded_wp_msg)
             time.sleep(0.5)
+        
 
-        self.navigator.waitUntilNav2Active(localizer='robot_localization')
-        wps = self.wp_parser.get_wps()
-        self.navigator.followGpsWaypoints(wps)
+        self.navigator.waitUntilNav2Active(localizer='controller_server')
+        wpl = []
+        for wp in wps:
+            self.req = FromLL.Request()
+            self.req.ll_point.longitude = wp.position.longitude
+            self.req.ll_point.latitude = wp.position.latitude
+            self.req.ll_point.altitude = wp.position.altitude
+
+            log = 'long{:f}, lat={:f}, alt={:f}'.format(self.req.ll_point.longitude, self.req.ll_point.latitude, self.req.ll_point.altitude)
+            self.get_logger().info(log)
+
+            self.future = self.localizer.call_async(self.req)
+            rclpy.spin_until_future_complete(self, self.future)
+
+            self.resp = PoseStamped()
+            self.resp.header.frame_id = 'map'
+            self.resp.header.stamp = self.get_clock().now().to_msg()
+            self.resp.pose.position = self.future.result().map_point
+
+            log = 'x={:f}, y={:f}, z={:f}'.format(self.future.result().map_point.x, self.future.result().map_point.y, self.future.result().map_point.z)
+            self.get_logger().info(log)
+            
+            self.resp.pose.orientation = wp.orientation
+            wpl += [self.resp]
+
+        self.navigator.followWaypoints(wpl)
 
         # Start the state check timer
         if self.state_check_timer.is_canceled():

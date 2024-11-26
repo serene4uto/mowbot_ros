@@ -250,6 +250,8 @@ global_costmap:
           raytrace_min_range: 0.0
           obstacle_max_range: 2.5
           obstacle_min_range: 0.0
+          # outdoors there will probably be more inf points
+          inf_is_valid: true
 
       # plugins: ["voxel_layer", "inflation_layer"]
 
