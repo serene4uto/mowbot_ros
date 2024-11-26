@@ -148,13 +148,13 @@ controller_server:
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker" # Plugin to ensure the robot is making adequate progress.
       required_movement_radius: 0.5              # Radius (meters) within which movement is considered successful.
-      movement_time_allowance: 5.0              # Allowed time (seconds) without movement before marking a failure.
+      movement_time_allowance: 10.0              # Allowed time (seconds) without movement before marking a failure.
 
     # Goal checker parameters
     goal_checker:
       plugin: "nav2_controller::SimpleGoalChecker" # Plugin to check goal achievement based on position and orientation.
-      xy_goal_tolerance: 0.25                # Positional tolerance (meters) around the goal.
-      yaw_goal_tolerance: 0.25               # Angular tolerance (radians) around the goal.
+      xy_goal_tolerance: 1.0                # Positional tolerance (meters) around the goal.
+      yaw_goal_tolerance: 0.8               # Angular tolerance (radians) around the goal.
       stateful: True                         # Keeps the goal checker in a persistent state.
 
     # DWB controller parameters
@@ -165,10 +165,10 @@ controller_server:
       min_vel_y: 0.0                         # Minimum y-axis velocity; typically set to zero for differential robots.
       max_vel_x: 0.26                        # Maximum x-axis velocity.
       max_vel_y: 0.0                         # Maximum y-axis velocity; set to zero for differential robots.
-      max_vel_theta: 1.0                     # Maximum angular velocity.
+      max_vel_theta: 1.5                     # Maximum angular velocity.
       min_speed_xy: 0.0                      # Minimum combined speed in x and y.
       max_speed_xy: 0.26                     # Maximum combined speed in x and y.
-      min_speed_theta: 0.0                   # Minimum angular speed.
+      min_speed_theta: 1.0                   # Minimum angular speed.
       acc_lim_x: 2.5                         # Acceleration limit in x-axis.
       acc_lim_y: 0.0                         # Acceleration limit in y-axis; set to zero for differential robots.
       acc_lim_theta: 3.2                     # Angular acceleration limit.
@@ -182,7 +182,7 @@ controller_server:
       linear_granularity: 0.05               # Granularity (meters) of linear steps in trajectory simulation.
       angular_granularity: 0.025             # Granularity (radians) of angular steps in trajectory simulation.
       transform_tolerance: 5.0               # Tolerance (seconds) for frame transformation.
-      xy_goal_tolerance: 0.25                # Positional tolerance (meters) for reaching the goal.
+      xy_goal_tolerance: 0.5                # Positional tolerance (meters) for reaching the goal.
       trans_stopped_velocity: 0.001          # Threshold (m/s) for detecting a stop in translation.
       short_circuit_trajectory_evaluation: True # Allows early exit during trajectory evaluation if a good path is found.
       limit_vel_cmd_in_traj: False
@@ -479,8 +479,8 @@ behavior_server:
     robot_base_frame: base_footprint                # Frame representing the base of the robot.
     transform_tolerance: 0.1                   # Allowed tolerance for frame transformations.
     simulate_ahead_time: 2.0                   # Duration (seconds) to simulate movement ahead for planning.
-    max_rotational_vel: 1.0                    # Maximum rotational velocity (rad/s).
-    min_rotational_vel: 0.4                    # Minimum rotational velocity (rad/s).
+    max_rotational_vel: 1.5                    # Maximum rotational velocity (rad/s).
+    min_rotational_vel: 1.0                    # Minimum rotational velocity (rad/s).
     rotational_acc_lim: 3.2                    # Rotational acceleration limit (rad/s^2).
 
 robot_state_publisher:
@@ -533,8 +533,8 @@ velocity_smoother:
     smoothing_frequency: 20.0           # Frequency (Hz) at which velocity smoothing is applied to incoming commands.
     scale_velocities: False             # Determines if velocities should be scaled based on maximum values.
     feedback: "OPEN_LOOP"               # Feedback mode; OPEN_LOOP assumes no feedback from the odometry.
-    max_velocity: [0.26, 0.0, 1.0]      # Maximum allowable velocities [linear x, linear y, angular z].
-    min_velocity: [-0.26, 0.0, -1.0]    # Minimum allowable velocities [linear x, linear y, angular z].
+    max_velocity: [0.26, 0.0, 1.5]      # Maximum allowable velocities [linear x, linear y, angular z].
+    min_velocity: [-0.26, 0.0, -1.5]    # Minimum allowable velocities [linear x, linear y, angular z].
     max_accel: [2.5, 0.0, 3.2]          # Maximum acceleration limits [linear x, linear y, angular z].
     max_decel: [-2.5, 0.0, -3.2]        # Maximum deceleration limits [linear x, linear y, angular z].
     odom_topic: "odom"                  # Topic to subscribe to for odometry data.
