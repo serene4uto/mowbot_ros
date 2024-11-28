@@ -15,7 +15,7 @@ ekf_filter_node:
     world_frame: odom
 
     odom0: /mowbot_base/odom
-    odom0_config: [true, true, false, # x, y, z
+    odom0_config: [false, false, false, # x, y, z
                    false, false, false, # roll, pitch, yaw
                    true,  true, false,  # vx, vy, vz
                    false, false, true,  # vroll, vpitch, vyaw
@@ -26,16 +26,16 @@ ekf_filter_node:
     # odom0_pose_rejection_threshold: 5.0 # Reject large pose jumps
     # odom0_twist_rejection_threshold: 1.0 
 
-    # imu0: /imu/data
-    # imu0_config: [false, false, false,
-    #               false, false, true,
-    #               false, false, false,
-    #               true, true, true,
-    #               false, false, false]
-    # imu0_nodelay: false
-    # imu0_differential: false  # If using a real robot you might want to set this to true, since usually absolute measurements from real imu's are not very accurate
-    # imu0_relative: true
-    # imu0_queue_size: 5
+    imu0: /imu/data
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  true, true, true,
+                  false, false, false]
+    imu0_nodelay: false
+    imu0_differential: false  # If using a real robot you might want to set this to true, since usually absolute measurements from real imu's are not very accurate
+    imu0_relative: true
+    imu0_queue_size: 5
 
     # imu0_pose_rejection_threshold: 0.8                 # Note the difference in parameter names
     # imu0_twist_rejection_threshold: 0.8                #
