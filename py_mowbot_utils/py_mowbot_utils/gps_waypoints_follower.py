@@ -128,7 +128,7 @@ class GpsWaypointFollowerGUI(tk.Tk, Node):
 
         self.get_logger().info(f'wpl={wpl}')
 
-        # self.navigator.followWaypoints(wpl)
+        self.navigator.followWaypoints(wpl)
 
         # Start the state check timer
         if self.state_check_timer.is_canceled():

@@ -93,12 +93,12 @@ def generate_launch_description():
             condition=IfCondition(LaunchConfiguration("mapviz"))
         ),
 
-        # Node(
-        #     package="py_mowbot_utils",
-        #     executable="gps_waypoints_follower",
-        #     name="gps_waypoints_follower",
-        #     output="screen",
-        # ),
+        Node(
+            package="py_mowbot_utils",
+            executable="gps_waypoints_follower",
+            name="gps_waypoints_follower",
+            output="screen",
+        ),
 
     ])
 
