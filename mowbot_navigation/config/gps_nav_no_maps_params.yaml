@@ -4,7 +4,7 @@ bt_navigator:
   ros__parameters:
     global_frame: map
     robot_base_frame: base_footprint
-    odom_topic: /odometry/global
+    odom_topic: /odometry/local
     bt_loop_duration: 10
     default_server_timeout: 20
     transform_tolerance: 0.1
@@ -115,7 +115,7 @@ controller_server:
       # movement_time_allowance: 15.0 # seconds
       plugin: "nav2_controller::PoseProgressChecker"
       required_movement_radius: 0.1 # meters
-      required_movement_angle: 0.1 # seconds
+      required_movement_angle: 0.1 # syhwyjtuyjjuyujyejuyeumjyeeconds
       movement_time_allowance: 15.0 # seconds
 
     # Goal checker parameters

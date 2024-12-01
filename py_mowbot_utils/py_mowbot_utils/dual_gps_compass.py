@@ -58,7 +58,7 @@ class DualGpsCompass(Node):
         # self.dual_gps_heading_pub = self.create_publisher(PoseWithCovarianceStamped, '/pose/dual_gps_heading', 10)
         # self.dual_gps_heading_pub = self.create_publisher(Odometry, '/odom/dual_gps_heading', 10)
         
-        self.heading_process_timer = self.create_timer(0.5, self.heading_process_timer_callback)
+        self.heading_process_timer = self.create_timer(1.0, self.heading_process_timer_callback)
 
         self.imu_gps_heading_pub = self.create_publisher(Imu, '/imu_gps_heading/data', 10)
 
@@ -112,90 +112,90 @@ class DualGpsCompass(Node):
         heading_yaw = (heading_yaw + np.pi) % (2 * np.pi) - np.pi
 
         # Get transforms from gps_left_link and gps_right_link to base_link
-        try:
-            transform_left = self.tf_buffer.lookup_transform(
-                self.base_frame_id, self.gps_left_frame_id, rclpy.time.Time())
-            transform_right = self.tf_buffer.lookup_transform(
-                self.base_frame_id, self.gps_right_frame_id, rclpy.time.Time())
-        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
-            self.get_logger().error(f'Error: {e}')
-            return
+        # try:
+        #     transform_left = self.tf_buffer.lookup_transform(
+        #         self.base_frame_id, self.gps_left_frame_id, rclpy.time.Time())
+        #     transform_right = self.tf_buffer.lookup_transform(
+        #         self.base_frame_id, self.gps_right_frame_id, rclpy.time.Time())
+        # except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
+        #     self.get_logger().error(f'Error: {e}')
+        #     return
 
-        # Use a reference point to reduce the magnitude of UTM coordinates
-        ref_utm_x = (utm_left_x + utm_right_x) / 2
-        ref_utm_y = (utm_left_y + utm_right_y) / 2
+        # # Use a reference point to reduce the magnitude of UTM coordinates
+        # ref_utm_x = (utm_left_x + utm_right_x) / 2
+        # ref_utm_y = (utm_left_y + utm_right_y) / 2
 
-        # Compute relative positions with respect to the reference point
-        utm_left_x_rel = utm_left_x - ref_utm_x
-        utm_left_y_rel = utm_left_y - ref_utm_y
-        utm_right_x_rel = utm_right_x - ref_utm_x
-        utm_right_y_rel = utm_right_y - ref_utm_y
+        # # Compute relative positions with respect to the reference point
+        # utm_left_x_rel = utm_left_x - ref_utm_x
+        # utm_left_y_rel = utm_left_y - ref_utm_y
+        # utm_right_x_rel = utm_right_x - ref_utm_x
+        # utm_right_y_rel = utm_right_y - ref_utm_y
 
-        # Create PointStamped messages with relative positions
-        point_left = PointStamped()
-        point_left.header.stamp = self.get_clock().now().to_msg()
-        point_left.header.frame_id = 'utm'
-        point_left.point.x = utm_left_x_rel
-        point_left.point.y = utm_left_y_rel
-        point_left.point.z = 0.0
+        # # Create PointStamped messages with relative positions
+        # point_left = PointStamped()
+        # point_left.header.stamp = self.get_clock().now().to_msg()
+        # point_left.header.frame_id = 'utm'
+        # point_left.point.x = utm_left_x_rel
+        # point_left.point.y = utm_left_y_rel
+        # point_left.point.z = 0.0
 
-        point_right = PointStamped()
-        point_right.header.stamp = self.get_clock().now().to_msg()
-        point_right.header.frame_id = 'utm'
-        point_right.point.x = utm_right_x_rel
-        point_right.point.y = utm_right_y_rel
-        point_right.point.z = 0.0
+        # point_right = PointStamped()
+        # point_right.header.stamp = self.get_clock().now().to_msg()
+        # point_right.header.frame_id = 'utm'
+        # point_right.point.x = utm_right_x_rel
+        # point_right.point.y = utm_right_y_rel
+        # point_right.point.z = 0.0
 
-        # Transform the points into the base frame
-        base_point_left = tf2_geometry_msgs.do_transform_point(point_left, transform_left)
-        base_point_right = tf2_geometry_msgs.do_transform_point(point_right, transform_right)
+        # # Transform the points into the base frame
+        # base_point_left = tf2_geometry_msgs.do_transform_point(point_left, transform_left)
+        # base_point_right = tf2_geometry_msgs.do_transform_point(point_right, transform_right)
 
-        # Compute the average position in the base frame
-        base_combined_x = (base_point_left.point.x + base_point_right.point.x) / 2
-        base_combined_y = (base_point_left.point.y + base_point_right.point.y) / 2
-        # base_combined_z = (base_point_left.point.z + base_point_right.point.z) / 2
+        # # Compute the average position in the base frame
+        # base_combined_x = (base_point_left.point.x + base_point_right.point.x) / 2
+        # base_combined_y = (base_point_left.point.y + base_point_right.point.y) / 2
+        # # base_combined_z = (base_point_left.point.z + base_point_right.point.z) / 2
 
-        # Get the combined GPS position in UTM coordinates
-        combined_base_utm_x = base_combined_x + ref_utm_x
-        combined_base_utm_y = base_combined_y + ref_utm_y
+        # # Get the combined GPS position in UTM coordinates
+        # combined_base_utm_x = base_combined_x + ref_utm_x
+        # combined_base_utm_y = base_combined_y + ref_utm_y
 
-        # Convert back to WGS84 coordinates
-        combined_base_lat, combined_base_lon = get_wgs84_coordinates(
-            combined_base_utm_x, combined_base_utm_y)
+        # # Convert back to WGS84 coordinates
+        # combined_base_lat, combined_base_lon = get_wgs84_coordinates(
+        #     combined_base_utm_x, combined_base_utm_y)
 
-        # Publish the Combined GPS transform
-        if self.publish_combined_gps_tf:
-            base_to_combined_gps_tf = TransformStamped()
-            base_to_combined_gps_tf.header.stamp = self.get_clock().now().to_msg()
-            base_to_combined_gps_tf.header.frame_id = self.base_frame_id
-            base_to_combined_gps_tf.child_frame_id = self.combined_gps_frame_id
-            base_to_combined_gps_tf.transform.translation.x = 0.0
-            base_to_combined_gps_tf.transform.translation.y = 0.0
-            base_to_combined_gps_tf.transform.translation.z = 0.0
-            base_to_combined_gps_tf.transform.rotation.x = 0.0
-            base_to_combined_gps_tf.transform.rotation.y = 0.0
-            base_to_combined_gps_tf.transform.rotation.z = 0.0
-            base_to_combined_gps_tf.transform.rotation.w = 1.0
-            self.tf_broadcaster.sendTransform(base_to_combined_gps_tf)
+        # # Publish the Combined GPS transform
+        # if self.publish_combined_gps_tf:
+        #     base_to_combined_gps_tf = TransformStamped()
+        #     base_to_combined_gps_tf.header.stamp = self.get_clock().now().to_msg()
+        #     base_to_combined_gps_tf.header.frame_id = self.base_frame_id
+        #     base_to_combined_gps_tf.child_frame_id = self.combined_gps_frame_id
+        #     base_to_combined_gps_tf.transform.translation.x = 0.0
+        #     base_to_combined_gps_tf.transform.translation.y = 0.0
+        #     base_to_combined_gps_tf.transform.translation.z = 0.0
+        #     base_to_combined_gps_tf.transform.rotation.x = 0.0
+        #     base_to_combined_gps_tf.transform.rotation.y = 0.0
+        #     base_to_combined_gps_tf.transform.rotation.z = 0.0
+        #     base_to_combined_gps_tf.transform.rotation.w = 1.0
+        #     self.tf_broadcaster.sendTransform(base_to_combined_gps_tf)
 
-        # Publish the Combined GPS Fix
-        combined_gps_fix = NavSatFix()
-        combined_gps_fix.header.stamp = self.get_clock().now().to_msg()
-        combined_gps_fix.header.frame_id = self.combined_gps_frame_id
-        combined_gps_fix.latitude = combined_base_lat
-        combined_gps_fix.longitude = combined_base_lon
-        combined_gps_fix.altitude = combined_gps_altitude
-        self.gps_fix_pub.publish(combined_gps_fix)
+        # # Publish the Combined GPS Fix
+        # combined_gps_fix = NavSatFix()
+        # combined_gps_fix.header.stamp = self.get_clock().now().to_msg()
+        # combined_gps_fix.header.frame_id = self.combined_gps_frame_id
+        # combined_gps_fix.latitude = combined_base_lat
+        # combined_gps_fix.longitude = combined_base_lon
+        # combined_gps_fix.altitude = combined_gps_altitude
+        # self.gps_fix_pub.publish(combined_gps_fix)
         
         #TODO: fix combined_gps_fix
-        # combined_gps_fix = self.last_gps_right
-        # combined_gps_fix.header.stamp = self.get_clock().now().to_msg()
-        # self.combined_gps_frame_id = self.last_gps_right.header.frame_id
-        # self.gps_fix_pub.publish(combined_gps_fix)
+        combined_gps_fix = self.last_gps_right
+        combined_gps_fix.header.stamp = self.get_clock().now().to_msg()
+        self.combined_gps_frame_id = self.last_gps_right.header.frame_id
+        self.gps_fix_pub.publish(combined_gps_fix)
         
         self.get_logger().info(f'Heading Yaw Angle: {heading_yaw}')
         heading_quaternion = R.from_euler('z', heading_yaw).as_quat()
-        self.get_logger().info(f'Heading Quaternion: {heading_quaternion}')
+        # self.get_logger().info(f'Heading Quaternion: {heading_quaternion}')
 
         # Publish the Dual GPS Heading as a PoseWithCovarianceStamped message
         # dual_gps_heading = PoseWithCovarianceStamped()
@@ -235,7 +235,8 @@ class DualGpsCompass(Node):
         
         imu_gps_heading = Imu()
         imu_gps_heading.header.stamp = self.get_clock().now().to_msg()
-        imu_gps_heading.header.frame_id = self.combined_gps_frame_id #"imu_link"
+        # imu_gps_heading.header.frame_id = self.combined_gps_frame_id #"imu_link"
+        imu_gps_heading.header.frame_id = "imu_link"
         imu_gps_heading.orientation.x = heading_quaternion[0]
         imu_gps_heading.orientation.y = heading_quaternion[1]
         imu_gps_heading.orientation.z = heading_quaternion[2]

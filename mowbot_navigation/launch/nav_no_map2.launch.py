@@ -20,7 +20,17 @@ def generate_launch_description():
         source_file=nav2_params, root_key="", param_rewrites="", convert_types=True
     )
 
+    rl_config_path = PathJoinSubstitution(
+        [FindPackageShare('mowbot_localization'), 'config', 'ekf_params.yaml']
+    )
+
     return LaunchDescription([
+
+        DeclareLaunchArgument(
+            "namespace",
+            default_value="",
+            description="Top-level namespace"
+        ),
 
         DeclareLaunchArgument(
             "rviz",
@@ -32,6 +42,30 @@ def generate_launch_description():
             "tf",
             default_value="True",
             description="Whether to launch TF"
+        ),
+
+        DeclareLaunchArgument(
+            name='rl',
+            default_value='false',
+            description='Use robot_localization'
+        ),
+
+        DeclareLaunchArgument(
+            "wpfl",
+            default_value="False",
+            description="Whether to launch waypoints follower"
+        ),
+
+        Node(
+            namespace=LaunchConfiguration('namespace'),
+            condition=IfCondition(LaunchConfiguration("rl")),
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=[
+                rl_config_path
+            ]
         ),
 
         # nav2
@@ -63,6 +97,14 @@ def generate_launch_description():
             executable='static_transform_publisher',
             arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
             condition=IfCondition(LaunchConfiguration("tf"))
-        )
+        ),
+
+        Node(
+            condition=IfCondition(LaunchConfiguration("wpfl")),
+            package='py_mowbot_utils',
+            executable='nav_no_map_wp_follower',
+            name='nav_no_map_wp_follower',
+            output='screen',
+        ),
 
     ])

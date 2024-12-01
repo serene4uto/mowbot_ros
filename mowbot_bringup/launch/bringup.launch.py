@@ -76,6 +76,8 @@ def generate_launch_description():
             description='Use robot_localization with gps'
         ),
 
+        
+
         # DeclareLaunchArgument(
         #     name='uros_serial_port',
         #     default_value='/dev/MBB',
@@ -113,6 +115,12 @@ def generate_launch_description():
             'gpsr',
             default_value='false',
             description='Whether to start the right gps'
+        ),
+
+        DeclareLaunchArgument(
+            'dgps_compass',
+            default_value='false',
+            description='Whether to start the dual gps compass'
         ),
 
         IncludeLaunchDescription(
@@ -160,6 +168,20 @@ def generate_launch_description():
             remappings=[
                 ('imu/data_raw', 'mb_imu/data'),
                 ('imu/mag', '/mb_imu/mag')
+            ]
+        ),
+
+        #Perception
+        GroupAction(
+            actions=[
+                Node(
+                    namespace=LaunchConfiguration('namespace'),
+                    package='py_mowbot_utils',
+                    executable='dual_gps_compass',
+                    name='dual_gps_compass',
+                    output='screen',
+                    condition=IfCondition(LaunchConfiguration('dgps_compass')),
+                )
             ]
         ),
 
