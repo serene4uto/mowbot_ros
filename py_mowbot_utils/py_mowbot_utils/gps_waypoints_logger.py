@@ -64,8 +64,9 @@ class GpsGuiLogger(tk.Tk, Node):
         """
         Function to update the GUI with the last coordinates
         """
+        last_heading_deg = self.last_heading * 180 / 3.14159
         self.gps_pose_textbox.config(
-            text=f"Lat: {self.last_gps_position.latitude:.6f}, Lon: {self.last_gps_position.longitude:.6f}, yaw: {self.last_heading:.2f} rad")
+            text=f"Lat: {self.last_gps_position.latitude:.6f}, Lon: {self.last_gps_position.longitude:.6f}, yaw: {self.last_heading:.2f} rad - {last_heading_deg:.2f} deg")
 
     def log_waypoint(self):
         """

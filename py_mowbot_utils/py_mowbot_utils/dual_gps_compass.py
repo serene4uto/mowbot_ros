@@ -58,7 +58,7 @@ class DualGpsCompass(Node):
         # self.dual_gps_heading_pub = self.create_publisher(PoseWithCovarianceStamped, '/pose/dual_gps_heading', 10)
         # self.dual_gps_heading_pub = self.create_publisher(Odometry, '/odom/dual_gps_heading', 10)
         
-        self.heading_process_timer = self.create_timer(1.0, self.heading_process_timer_callback)
+        self.heading_process_timer = self.create_timer(0.05, self.heading_process_timer_callback)
 
         self.imu_gps_heading_pub = self.create_publisher(Imu, '/imu_gps_heading/data', 10)
 

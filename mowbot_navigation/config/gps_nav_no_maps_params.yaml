@@ -122,8 +122,8 @@ controller_server:
     general_goal_checker: #TODO: tune these values
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.5   # meters
-      yaw_goal_tolerance: 0.5   # radians
+      xy_goal_tolerance: 0.25   # meters
+      yaw_goal_tolerance: 0.25   # radians
 
     # DWB controller parameters
     FollowPath: #TODO: tune these values
@@ -131,23 +131,23 @@ controller_server:
       # https://github.com/ros-navigation/navigation2/blob/humble/nav2_dwb_controller/README.md
 
       
-      # plugin: "nav2_rotation_shim_controller::RotationShimController"
-      # angular_dist_threshold: 0.785
-      # forward_sampling_distance: 0.5
-      # rotate_to_heading_angular_vel: 1.8
-      # max_angular_accel: 3.2
-      # simulate_ahead_time: 1.0
+      plugin: "nav2_rotation_shim_controller::RotationShimController"
+      angular_dist_threshold: 0.785
+      forward_sampling_distance: 0.5
+      rotate_to_heading_angular_vel: 1.8
+      max_angular_accel: 3.2
+      simulate_ahead_time: 1.0
 
       # primary_controller: "dwb_core::DWBLocalPlanner"
       # plugin: "dwb_core::DWBLocalPlanner" 
       # debug_trajectory_details: True
       # min_vel_x: 0.0
       # min_vel_y: 0.0
-      # max_vel_x: 0.26
+      # max_vel_x: 0.3
       # max_vel_y: 0.0
       # max_vel_theta: 1.8
       # min_speed_xy: 0.0
-      # max_speed_xy: 0.26
+      # max_speed_xy: 0.3
       # min_speed_theta: 1.5  
       # acc_lim_x: 2.5
       # acc_lim_y: 0.0
@@ -169,7 +169,7 @@ controller_server:
       # # TODO: tune these values
 
       # critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      # BaseObstacle.scale: 0.02
+      # BaseObstacle.scale: 50.0
       # PathAlign.scale: 32.0
       # PathAlign.forward_point_distance: 0.1
       # GoalAlign.scale: 24.0
@@ -181,8 +181,8 @@ controller_server:
       # RotateToGoal.lookahead_time: -1.0
 
       # https://docs.nav2.org/configuration/packages/configuring-regulated-pp.html#regulated-pure-pursuit-parameters
-      # primary_controller: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      primary_controller: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      # plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
       desired_linear_vel: 0.5
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3

@@ -11,6 +11,7 @@ bt_navigator:
     navigate_to_pose:
       plugin: "nav2_bt_navigator/NavigateToPoseNavigator"
     # default_nav_to_pose_bt_xml: "/opt/ros/humble/share/nav2_bt_navigator/behavior_trees/navigate_w_replanning_only_if_goal_is_updated.xml"
+    default_nav_to_pose_bt_xml: "/workspaces/mowbot_ros2_devcontainer/mowbot_ws/src/mowbot_ros/mowbot_navigation/bt/navigate_to_pose_and_pause_near_goal_obstacle.xml"
     navigate_through_poses:
       plugin: "nav2_bt_navigator/NavigateThroughPosesNavigator"
       # default_nav_through_poses_bt_xml: "nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml"
@@ -130,15 +131,16 @@ controller_server:
       # https://github.com/ros-navigation/navigation2/blob/humble/nav2_dwb_controller/README.md
 
       
-      # plugin: "nav2_rotation_shim_controller::RotationShimController"
-      # angular_dist_threshold: 0.785
-      # forward_sampling_distance: 0.5
-      # rotate_to_heading_angular_vel: 1.8
-      # max_angular_accel: 3.2
-      # simulate_ahead_time: 1.0
+      plugin: "nav2_rotation_shim_controller::RotationShimController"
+      angular_dist_threshold: 0.785
+      forward_sampling_distance: 0.5
+      rotate_to_heading_angular_vel: 1.8
+      max_angular_accel: 3.2
+      simulate_ahead_time: 1.0
+      rotate_to_goal_heading: false
 
-      # primary_controller: "dwb_core::DWBLocalPlanner"
-      plugin: "dwb_core::DWBLocalPlanner" 
+      primary_controller: "dwb_core::DWBLocalPlanner"
+      # plugin: "dwb_core::DWBLocalPlanner" 
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0

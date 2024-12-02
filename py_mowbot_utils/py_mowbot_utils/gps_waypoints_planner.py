@@ -10,6 +10,11 @@ import os
 import sys
 import yaml
 
+from sensor_msgs.msg import Imu
+
+from scipy.spatial.transform import Rotation as R
+import math
+
 
 class GpsWaypointPlannerGUI(tk.Tk, Node):
     def __init__(self):
@@ -43,7 +48,7 @@ class GpsWaypointPlannerGUI(tk.Tk, Node):
         self.treeview.heading("Order", text="Order", anchor=tk.W)
         self.treeview.heading("Latitude", text="Latitude", anchor=tk.W)
         self.treeview.heading("Longitude", text="Longitude", anchor=tk.W)
-        self.treeview.heading("Yaw", text="Yaw", anchor=tk.W)
+        self.treeview.heading("Yaw", text="Yaw (rad)", anchor=tk.W)
         self.treeview.bind("<Double-1>", self.on_double_click)
 
         self.save_name_label = tk.Label(self, text="Map Name:")
@@ -71,16 +76,29 @@ class GpsWaypointPlannerGUI(tk.Tk, Node):
         
         self.selected_wps_pub = self.create_publisher(
             NavSatFix, "/igw_gps_points", 1)
+        
+        self.orientation_sub = self.create_subscription(
+            Imu, "/imu_gps_heading/data", self.orientation_cb, 1)
 
         self.last_gps_position = NavSatFix()
         self.last_heading = 0.0
 
         self.waypoints_counter = 0
 
+        # Store waypoints in a list
+        self.waypoints = []
+
+    def orientation_cb(self, msg: Imu):
+        # convert quaternion to euler
+        r = R.from_quat([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+        yaw = r.as_euler('zyx')[0]
+        self.last_heading = yaw
+        self.get_logger().info(f"Received orientation from imu_gps_heading at yaw: {yaw}")
+
     def mapviz_wp_cb(self, msg: PointStamped):
         if msg.header.frame_id != "wgs84":
             self.get_logger().warning(
-                "Received point from mapviz that ist not in wgs84 frame. This is not a gps point and wont be followed")
+                "Received point from mapviz that is not in wgs84 frame. This is not a gps point and won't be followed")
             return
         
         self.get_logger().info(f"Received point from mapviz at lon: {msg.point.x}, lat: {msg.point.y}")
@@ -90,8 +108,33 @@ class GpsWaypointPlannerGUI(tk.Tk, Node):
         self.selected_wps_pub.publish(self.last_gps_position)
 
         self.waypoints_counter += 1
-        self.treeview.insert(parent='', index='end', text='',
-                                values=(self.waypoints_counter, msg.point.y, msg.point.x, 0.0))
+
+        # Add the waypoint to the list
+        waypoint = {
+            'order': self.waypoints_counter,
+            'latitude': msg.point.y,
+            'longitude': msg.point.x,
+            'yaw': 0.0  # Placeholder for yaw
+        }
+        self.waypoints.append(waypoint)
+
+        # Update yaw of previous waypoint if it exists
+        if len(self.waypoints) > 1:
+            # Calculate yaw from previous point to this point
+            prev_wp = self.waypoints[-2]
+            curr_wp = self.waypoints[-1]
+            yaw = self.calculate_yaw(prev_wp['latitude'], prev_wp['longitude'],
+                                     curr_wp['latitude'], curr_wp['longitude'])
+            # Update previous waypoint's yaw
+            self.waypoints[-2]['yaw'] = yaw
+            # Set current waypoint's yaw to be the same as previous waypoint's yaw
+            self.waypoints[-1]['yaw'] = yaw
+        else:
+            # First waypoint, set yaw to zero
+            self.waypoints[-1]['yaw'] = 0.0
+
+        # Update the Treeview
+        self.update_treeview()
         
     def on_double_click(self, event):
         # Get the selected item
@@ -120,6 +163,19 @@ class GpsWaypointPlannerGUI(tk.Tk, Node):
             # Update the treeview item
             self.treeview.set(item, column=column, value=entry.get())
             entry.destroy()
+            # Update the waypoint data
+            index = int(self.treeview.index(item))
+            value = entry.get()
+            if col_index == 1:
+                self.waypoints[index]['latitude'] = float(value)
+            elif col_index == 2:
+                self.waypoints[index]['longitude'] = float(value)
+            elif col_index == 3:
+                self.waypoints[index]['yaw'] = float(value)
+            # Recalculate yaw if latitude or longitude changed
+            if col_index == 1 or col_index == 2:
+                self.update_yaw_after_edit(index)
+                self.update_treeview()
 
         def on_entry_click_outside(event):
             entry.destroy()
@@ -139,12 +195,11 @@ class GpsWaypointPlannerGUI(tk.Tk, Node):
         logging_file_path = self.save_name_textbox.get()
             
         with open(logging_file_path, "w") as f:
-            for item in self.treeview.get_children():
-                row_data = self.treeview.item(item, 'values')
+            for wp in self.waypoints:
                 data = {
-                    "latitude": float(row_data[1]),
-                    "longitude": float(row_data[2]),
-                    "yaw": float(row_data[3]),
+                    "latitude": wp['latitude'],
+                    "longitude": wp['longitude'],
+                    "yaw": wp['yaw'],
                 }
                 waypoint_data_list["waypoints"].append(data)
             yaml.dump(waypoint_data_list, f)
@@ -153,8 +208,78 @@ class GpsWaypointPlannerGUI(tk.Tk, Node):
     def clear_selected_waypoints(self):
         self.waypoints_counter = 0
         self.treeview.delete(*self.treeview.get_children())
-        pass
+        self.waypoints = []
 
+    def calculate_yaw(self, lat1_deg, lon1_deg, lat2_deg, lon2_deg):
+        """
+        Calculates the yaw between two points in radians, from -pi to pi,
+        with 0 pointing East and pi/2 pointing North.
+    
+        Parameters:
+        lat1_deg, lon1_deg: Latitude and Longitude of point 1 (in degrees)
+        lat2_deg, lon2_deg: Latitude and Longitude of point 2 (in degrees)
+    
+        Returns:
+        Yaw in radians from -pi to pi, with 0 pointing East.
+        """
+        # Convert latitudes and longitudes from degrees to radians
+        lat1 = math.radians(lat1_deg)
+        lon1 = math.radians(lon1_deg)
+        lat2 = math.radians(lat2_deg)
+        lon2 = math.radians(lon2_deg)
+    
+        # Calculate differences
+        d_lon = lon2 - lon1
+    
+        # Calculate components
+        x = math.sin(d_lon) * math.cos(lat2)
+        y = math.cos(lat1) * math.sin(lat2) - \
+            math.sin(lat1) * math.cos(lat2) * math.cos(d_lon)
+    
+        # Calculate yaw angle from East, counterclockwise positive
+        yaw = math.atan2(y, x)
+    
+        # Normalize yaw to -pi to pi
+        yaw = (yaw + math.pi) % (2 * math.pi) - math.pi
+    
+        return yaw
+
+
+
+    def update_treeview(self):
+        # Clear the Treeview
+        self.treeview.delete(*self.treeview.get_children())
+        # Re-insert all waypoints with updated yaw
+        for wp in self.waypoints:
+            self.treeview.insert(parent='', index='end', text='',
+                                 values=(wp['order'], wp['latitude'], wp['longitude'], wp['yaw']))
+
+    def update_yaw_after_edit(self, index):
+        # Update yaw of the waypoint at the given index and its neighbors if necessary
+        wp = self.waypoints[index]
+        # Update previous waypoint's yaw if current waypoint is not the first one
+        if index > 0:
+            prev_wp = self.waypoints[index - 1]
+            yaw = self.calculate_yaw(prev_wp['latitude'], prev_wp['longitude'],
+                                     wp['latitude'], wp['longitude'])
+            prev_wp['yaw'] = yaw
+            wp['yaw'] = yaw  # Set current waypoint's yaw to be the same as previous
+        else:
+            # First waypoint, set its yaw to zero or calculate if there's a next waypoint
+            if len(self.waypoints) > 1:
+                next_wp = self.waypoints[index + 1]
+                yaw = self.calculate_yaw(wp['latitude'], wp['longitude'],
+                                         next_wp['latitude'], next_wp['longitude'])
+                wp['yaw'] = yaw
+            else:
+                wp['yaw'] = 0.0
+        # Update next waypoint's yaw if exists
+        if index + 1 < len(self.waypoints):
+            next_wp = self.waypoints[index + 1]
+            yaw = self.calculate_yaw(wp['latitude'], wp['longitude'],
+                                     next_wp['latitude'], next_wp['longitude'])
+            wp['yaw'] = yaw
+            next_wp['yaw'] = yaw  # Keep next waypoint's yaw same as current
 
 def main(args=None):
     rclpy.init(args=args)
@@ -171,6 +296,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-        
-
-

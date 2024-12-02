@@ -36,7 +36,8 @@ def generate_launch_description():
             remappings=[
                 #input
                 ("odom", "mowbot_base/odom"),
-                ("imu", "mb_imu/data"),
+                # ("imu", "mb_imu/data"),
+                ("imu", "imu/data"),
                 #output
                 ("odometry/filtered", "odometry/local")
 
@@ -56,7 +57,8 @@ def generate_launch_description():
             remappings=[
                 #input
                 ("odom", "mowbot_base/odom"),
-                ("imu", "mb_imu/data"),
+                # ("imu", "mb_imu/data"),
+                ("imu", "imu/data"),
                 ("odometry/gps", "odometry/combined_gps"),
                 #output
                 ("odometry/filtered", "odometry/global")
@@ -79,7 +81,8 @@ def generate_launch_description():
                 #input
                 ("odometry/filtered", "odometry/global"),
                 ("gps/fix", "/combined_gps/fix"),
-                ("imu", "mb_imu/data"),
+                # ("imu", "mb_imu/data"),
+                ("imu", "imu/data"),
                 #output
                 ("odometry/gps", "odometry/combined_gps"),
                 ("gps/filtered", "combined_gps/filtered"),

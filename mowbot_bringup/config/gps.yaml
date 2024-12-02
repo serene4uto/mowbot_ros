@@ -16,7 +16,7 @@
         qzss: true              
 
       dynamic_model: portable    # Dynamic Platform Model
-      rate: 10.0
+      rate: 17.0
       nav_rate: 1
       fix_mode: auto
       dr_limit: 0
@@ -56,7 +56,7 @@
         qzss: true              
 
       dynamic_model: portable    # Dynamic Platform Model
-      rate: 10.0
+      rate: 17.0
       nav_rate: 1
       fix_mode: auto
       # TMODE3 Config
@@ -90,7 +90,7 @@
       # Optional parameter that will set the NTRIP version in the initial HTTP request to the NTRIP caster.
       ntrip_version: None
       # The rate at which the NTRIP server will send RTCM messages. This will be the rate at which the node will request RTCM messages
-      ntrip_server_hz: 1.0 # max to 1.0 Hz for rtk2go
+      ntrip_server_hz: 5.0 # max to 1.0 Hz for rtk2go
       # If this is set to true, we will read the username and password and attempt to authenticate. If not, we will attempt to connect unauthenticated
       authenticate: True
       # If authenticate is set the true, we will use these to authenticate with the server

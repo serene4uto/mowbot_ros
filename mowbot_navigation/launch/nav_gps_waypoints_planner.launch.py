@@ -24,12 +24,19 @@ def generate_launch_description():
         description="Original Longitude"
     )
 
+    declare_manual = DeclareLaunchArgument(
+        "manual",
+        default_value="false",
+        description="Manual GPS position"
+    )
+    
+
     # Original ExecuteProcess
     #TODO: find betterway to avoid "Waiting for at least 1 matching subscription(s)..." after publishing once
     gps_execute_process = ExecuteProcess(
         cmd=[
             Command([
-                TextSubstitution(text='ros2 topic pub --once /mapviz_original/fix sensor_msgs/NavSatFix -- "'),
+                TextSubstitution(text='ros2 topic pub --once /combined_gps/fix sensor_msgs/NavSatFix -- "'),
                 TextSubstitution(text='{\\"header\\": {\\"stamp\\": {\\"sec\\": 0, \\"nanosec\\": 0}, \\"frame_id\\": \\"gps\\"}, '),
                 TextSubstitution(text='\\"status\\": {\\"status\\": 0, \\"service\\": 1}, '),
                 TextSubstitution(text='\\"latitude\\": '), LaunchConfiguration('lat'), TextSubstitution(text=', '),
@@ -41,7 +48,8 @@ def generate_launch_description():
             ])
         ],
         shell=True,
-        output='screen'
+        output='screen',
+        condition=LaunchConfiguration('manual')
     )
 
     # Include another launch file
@@ -52,7 +60,7 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "fix_topic": "mapviz_original/fix",
+            "fix_topic": "/combined_gps/fix",
             "mvc_config": mapviz_config,
         }.items()
     )
@@ -68,13 +76,14 @@ def generate_launch_description():
     # Timer to delay ExecuteProcess by 5 seconds
     delayed_gps_execute_process = TimerAction(
         period=1.0,  # Delay in seconds
-        actions=[gps_execute_process]
+        actions=[gps_execute_process],
     )
 
     return LaunchDescription([
         declare_lat,
         declare_lon,
+        declare_manual,
         mapviz_launch,
         gps_waypoints_node,
-        delayed_gps_execute_process,
+        # delayed_gps_execute_process,
     ])
