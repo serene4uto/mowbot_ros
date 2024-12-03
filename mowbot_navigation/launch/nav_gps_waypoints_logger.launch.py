@@ -27,7 +27,7 @@ def generate_launch_description():
 
     declare_rl = DeclareLaunchArgument(
         "rl",
-        default_value="false",
+        default_value="true",
         description="Use robot_localization"
     )
 
@@ -69,7 +69,7 @@ def generate_launch_description():
             )
         ),
         launch_arguments={
-            "fix_topic": "mapviz_original/fix",
+            "fix_topic": "/combined_gps/filtered",
             "mvc_config": mapviz_config,
         }.items()
     )
@@ -81,7 +81,7 @@ def generate_launch_description():
         name='gps_waypoints_logger',
         output='screen',
         remappings=[
-            ('/gps/fix', '/combined_gps/fix'),
+            ('/gps/fix', '/combined_gps/filtered'),
             ('/imu', '/imu_gps_heading/data')
         ]
     )
@@ -99,5 +99,5 @@ def generate_launch_description():
         mapviz_launch,
         gps_waypoints_node,
         rl_launch,
-        delayed_gps_execute_process,
+        # delayed_gps_execute_process,
     ])

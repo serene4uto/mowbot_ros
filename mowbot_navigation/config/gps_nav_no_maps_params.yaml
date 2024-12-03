@@ -18,6 +18,7 @@ bt_navigator:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
     # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
+    # default_nav_through_poses_bt_xml: /workspaces/mowbot_ros2_devcontainer/mowbot_ws/src/mowbot_ros/mowbot_navigation/bt/through_pose.xml
     plugin_lib_names:
     # Action Nodes
       # path planning
@@ -122,7 +123,7 @@ controller_server:
     general_goal_checker: #TODO: tune these values
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25   # meters
+      xy_goal_tolerance: 0.5   # meters
       yaw_goal_tolerance: 0.25   # radians
 
     # DWB controller parameters
@@ -131,12 +132,12 @@ controller_server:
       # https://github.com/ros-navigation/navigation2/blob/humble/nav2_dwb_controller/README.md
 
       
-      plugin: "nav2_rotation_shim_controller::RotationShimController"
-      angular_dist_threshold: 0.785
-      forward_sampling_distance: 0.5
-      rotate_to_heading_angular_vel: 1.8
-      max_angular_accel: 3.2
-      simulate_ahead_time: 1.0
+      # plugin: "nav2_rotation_shim_controller::RotationShimController"
+      # angular_dist_threshold: 0.785
+      # forward_sampling_distance: 0.5
+      # rotate_to_heading_angular_vel: 1.8
+      # max_angular_accel: 3.2
+      # simulate_ahead_time: 1.0
 
       # primary_controller: "dwb_core::DWBLocalPlanner"
       # plugin: "dwb_core::DWBLocalPlanner" 
@@ -181,8 +182,8 @@ controller_server:
       # RotateToGoal.lookahead_time: -1.0
 
       # https://docs.nav2.org/configuration/packages/configuring-regulated-pp.html#regulated-pure-pursuit-parameters
-      primary_controller: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-      # plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      # primary_controller: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
       desired_linear_vel: 0.5
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3

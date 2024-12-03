@@ -81,12 +81,12 @@
   ntrip_client:
     ros__parameters:
       # Required parameters used to connect to the NTRIP server
-      host: www.gnssdata.or.kr
-      port: 2101
-      mountpoint: KUNW-RTCM32
-      # host: rtk2go.com
+      # host: www.gnssdata.or.kr
       # port: 2101
-      # mountpoint: serene4uto-rtk-bs
+      # mountpoint: KUNW-RTCM32
+      host: rtk2go.com
+      port: 2101
+      mountpoint: serene4uto-rtk-bs
       # Optional parameter that will set the NTRIP version in the initial HTTP request to the NTRIP caster.
       ntrip_version: None
       # The rate at which the NTRIP server will send RTCM messages. This will be the rate at which the node will request RTCM messages

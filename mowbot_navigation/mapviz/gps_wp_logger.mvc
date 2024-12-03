@@ -9,9 +9,9 @@ show_status_bar: true
 show_capture_tools: true
 window_width: 1208
 window_height: 736
-view_scale: 0.564473748
-offset_x: -55.0469894
-offset_y: -4.65194941
+view_scale: 0.0158277098
+offset_x: -2.92458344
+offset_y: -2.07511139
 use_latest_transforms: true
 background: "#a0a0a4"
 image_transport: raw
@@ -66,7 +66,7 @@ displays:
       visible: true
       collapsed: false
       topic: /ublox_gpsr_node/fix
-      color: "#00ff00"
+      color: "#0055ff"
       draw_style: points
       position_tolerance: 0
       buffer_size: 1
@@ -86,3 +86,17 @@ displays:
       buffer_size: 1
       static_arrow_sizes: false
       arrow_size: 25
+  - type: mapviz_plugins/navsat
+    name: new display
+    config:
+      visible: true
+      collapsed: false
+      topic: /combined_gps/filtered
+      color: "#aa00ff"
+      draw_style: points
+      position_tolerance: 0
+      buffer_size: 1
+      qos_depth: 10
+      qos_history: 1
+      qos_reliability: 1
+      qos_durability: 2
