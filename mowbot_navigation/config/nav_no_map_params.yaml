@@ -131,55 +131,55 @@ controller_server:
       # https://github.com/ros-navigation/navigation2/blob/humble/nav2_dwb_controller/README.md
 
       
-      plugin: "nav2_rotation_shim_controller::RotationShimController"
-      angular_dist_threshold: 0.785
-      forward_sampling_distance: 0.5
-      rotate_to_heading_angular_vel: 1.8
-      max_angular_accel: 3.2
-      simulate_ahead_time: 1.0
-      rotate_to_goal_heading: false
+      # plugin: "nav2_rotation_shim_controller::RotationShimController"
+      # angular_dist_threshold: 0.785
+      # forward_sampling_distance: 0.5
+      # rotate_to_heading_angular_vel: 1.8
+      # max_angular_accel: 3.2
+      # simulate_ahead_time: 1.0
+      # rotate_to_goal_heading: false
 
-      primary_controller: "dwb_core::DWBLocalPlanner"
-      # plugin: "dwb_core::DWBLocalPlanner" 
-      debug_trajectory_details: True
-      min_vel_x: 0.0
-      min_vel_y: 0.0
-      max_vel_x: 0.3
-      max_vel_y: 0.0
-      max_vel_theta: 1.8
-      min_speed_xy: 0.0
-      max_speed_xy: 0.3
-      min_speed_theta: 1.5  
-      acc_lim_x: 2.5
-      acc_lim_y: 0.0
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
-      decel_lim_y: 0.0
-      decel_lim_theta: -3.2
-      vx_samples: 20
-      vy_samples: 5
-      vtheta_samples: 20
-      sim_time: 1.7
-      linear_granularity: 0.05
-      angular_granularity: 0.025 #0.05 #0.025
-      transform_tolerance: 0.5 # sec
-      xy_goal_tolerance: 0.25 # config this to make tolerance --> imp
-      trans_stopped_velocity: 0.25
-      short_circuit_trajectory_evaluation: True
-      stateful: True
-      # TODO: tune these values
+      # primary_controller: "dwb_core::DWBLocalPlanner"
+      # # plugin: "dwb_core::DWBLocalPlanner" 
+      # debug_trajectory_details: True
+      # min_vel_x: 0.0
+      # min_vel_y: 0.0
+      # max_vel_x: 0.3
+      # max_vel_y: 0.0
+      # max_vel_theta: 1.8
+      # min_speed_xy: 0.0
+      # max_speed_xy: 0.3
+      # min_speed_theta: 1.5  
+      # acc_lim_x: 2.5
+      # acc_lim_y: 0.0
+      # acc_lim_theta: 3.2
+      # decel_lim_x: -2.5
+      # decel_lim_y: 0.0
+      # decel_lim_theta: -3.2
+      # vx_samples: 20
+      # vy_samples: 5
+      # vtheta_samples: 20
+      # sim_time: 1.7
+      # linear_granularity: 0.05
+      # angular_granularity: 0.025 #0.05 #0.025
+      # transform_tolerance: 0.5 # sec
+      # xy_goal_tolerance: 0.25 # config this to make tolerance --> imp
+      # trans_stopped_velocity: 0.25
+      # short_circuit_trajectory_evaluation: True
+      # stateful: True
+      # # TODO: tune these values
 
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 50.0
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
-      RotateToGoal.lookahead_time: -1.0
+      # critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      # BaseObstacle.scale: 50.0
+      # PathAlign.scale: 32.0
+      # PathAlign.forward_point_distance: 0.1
+      # GoalAlign.scale: 24.0
+      # GoalAlign.forward_point_distance: 0.1
+      # PathDist.scale: 32.0
+      # GoalDist.scale: 24.0
+      # RotateToGoal.scale: 32.0
+      # RotateToGoal.slowing_factor: 5.0
+      # RotateToGoal.lookahead_time: -1.0
 
       # https://docs.nav2.org/configuration/packages/configuring-regulated-pp.html#regulated-pure-pursuit-parameters
       # primary_controller: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
@@ -208,6 +208,100 @@ controller_server:
       # cost_scaling_dist: 0.3
       # cost_scaling_gain: 1.0
       # inflation_cost_scaling_factor: 3.0
+
+
+      plugin: "nav2_mppi_controller::MPPIController"
+      time_steps: 56
+      model_dt: 0.05
+      batch_size: 2000
+      vx_std: 0.2
+      vy_std: 0.2
+      wz_std: 0.4
+      vx_max: 0.5
+      vx_min: -0.35
+      vy_max: 0.5
+      wz_max: 1.9
+      iteration_count: 1
+      prune_distance: 1.7
+      transform_tolerance: 0.1
+      temperature: 0.3
+      gamma: 0.015
+      motion_model: "DiffDrive"
+      visualize: false
+      TrajectoryVisualizer:
+        trajectory_step: 5
+        time_step: 3
+      AckermannConstraints:
+        min_turning_r: 0.2
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic", "VelocityDeadbandCritic"]
+      ConstraintCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 4.0
+      GoalCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.4
+      GoalAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.0
+        threshold_to_consider: 0.5
+      PreferForwardCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 0.5
+      # ObstaclesCritic:
+      #   enabled: true
+      #   cost_power: 1
+      #   repulsion_weight: 1.5
+      #   critical_weight: 20.0
+      #   consider_footprint: false
+      #   collision_cost: 10000.0
+      #   collision_margin_distance: 0.1
+      #   near_goal_distance: 0.5
+      CostCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.81
+        critical_cost: 300.0
+        consider_footprint: true
+        collision_cost: 1000000.0
+        near_goal_distance: 1.0
+      PathAlignCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 3
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: false
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.4
+      PathAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 2.0
+        offset_from_furthest: 4
+        threshold_to_consider: 0.5
+        max_angle_to_furthest: 1.0
+        forward_preference: true
+      VelocityDeadbandCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        deadband_velocities: [0.2, 0.0, 1.0]
+      # TwirlingCritic:
+      #   enabled: true
+      #   twirling_cost_power: 1
+      #   twirling_cost_weight: 10.0
 
 
 local_costmap:
