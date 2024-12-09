@@ -2,3 +2,37 @@
     path = depends/mapviz
     url = https://github.com/swri-robotics/mapviz.git
     branch = ros2-devel
+
+[submodule "micro-ROS-Agent"]
+    path = depends/micro-ROS-Agent
+    url = https://github.com/micro-ROS/micro-ROS-Agent.git
+    branch = humble
+
+[submodule "ntrip_client_ros"]
+    path = depends/ntrip_client_ros
+    url = https://github.com/Zeki411/ntrip_client_ros.git
+    branch = ros2
+
+[submodule "ublox"]
+    path = depends/ublox
+    url = https://github.com/KumarRobotics/ublox.git
+    branch = ros2
+
+[submodule "realsense-ros"]
+    path = depends/realsense-ros
+    url = https://github.com/IntelRealSense/realsense-ros.git
+    branch = ros2-master
+
+[submodule "rplidar_ros"]
+    path = depends/rplidar_ros
+    url = https://github.com/Slamtec/rplidar_ros.git
+    branch = ros2
+
+[submodule "witmotion_ros"]
+    path = depends/witmotion_ros
+    url = https://github.com/ElettraSciComp/witmotion_IMU_ros.git
+    branch = ros2
+
+
+
+
