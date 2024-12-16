@@ -77,25 +77,25 @@ def generate_launch_description():
         ),
 
         
-        DeclareLaunchArgument(
-            name='uros_serial_port',
-            default_value='/dev/MBB-UROS',
-            description='Serial port for uros communication'
-        ),
+        # DeclareLaunchArgument(
+        #     name='uros_serial_port',
+        #     default_value='/dev/MBB-UROS',
+        #     description='Serial port for uros communication'
+        # ),
 
-        DeclareLaunchArgument(
-            name='uros_baudrate',
-            default_value='115200',
-            description='Baudrate for uros serial communication'
-        ),
+        # DeclareLaunchArgument(
+        #     name='uros_baudrate',
+        #     default_value='115200',
+        #     description='Baudrate for uros serial communication'
+        # ),
 
-        Node(
-            package='micro_ros_agent',
-            executable='micro_ros_agent',
-            name='micro_ros_agent',
-            output='screen',
-            arguments=['serial', '--dev', LaunchConfiguration("uros_serial_port"), '--baudrate', LaunchConfiguration("uros_baudrate")]
-        ),
+        # Node(
+        #     package='micro_ros_agent',
+        #     executable='micro_ros_agent',
+        #     name='micro_ros_agent',
+        #     output='screen',
+        #     arguments=['serial', '--dev', LaunchConfiguration("uros_serial_port"), '--baudrate', LaunchConfiguration("uros_baudrate")]
+        # ),
 
 
         DeclareLaunchArgument(
@@ -120,6 +120,12 @@ def generate_launch_description():
             'dgps_compass',
             default_value='false',
             description='Whether to start the dual gps compass'
+        ),
+
+        DeclareLaunchArgument(
+            'foxglove',
+            default_value='false',
+            description='Whether to start the foxglove'
         ),
 
         IncludeLaunchDescription(
@@ -261,6 +267,13 @@ def generate_launch_description():
 
             ],
             condition=IfCondition(LaunchConfiguration("rlgps"))
+        ),
+
+        IncludeLaunchDescription(
+            PathJoinSubstitution(
+                [FindPackageShare('foxglove_bridge'), 'launch', 'foxglove_bridge_launch.xml']
+            ),
+            condition=IfCondition(LaunchConfiguration('foxglove')),
         ),
 
         Node(

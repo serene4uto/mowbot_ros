@@ -4,4 +4,4 @@ pyproj
 pytz
 scipy
 
-tkinter
+tk
