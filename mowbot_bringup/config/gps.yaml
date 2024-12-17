@@ -105,7 +105,7 @@
       # password: gnss
 
       username: sns
-      password: 1234
+      password: "1234"
       
       # Whether to connect with SSL. cert, key, and ca_cert options will only take effect if this is true
       ssl: false
