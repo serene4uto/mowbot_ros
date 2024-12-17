@@ -84,9 +84,15 @@
       # host: www.gnssdata.or.kr
       # port: 2101
       # mountpoint: KUNW-RTCM32
-      host: rtk2go.com
+
+      # host: rtk2go.com
+      # port: 2101
+      # mountpoint: serene4uto-rtk-bs
+
+      host: ntrip.hi-rtk.io
       port: 2101
-      mountpoint: serene4uto-rtk-bs
+      mountpoint: SNS_AUTO
+
       # Optional parameter that will set the NTRIP version in the initial HTTP request to the NTRIP caster.
       ntrip_version: None
       # The rate at which the NTRIP server will send RTCM messages. This will be the rate at which the node will request RTCM messages
@@ -94,8 +100,13 @@
       # If this is set to true, we will read the username and password and attempt to authenticate. If not, we will attempt to connect unauthenticated
       authenticate: True
       # If authenticate is set the true, we will use these to authenticate with the server
-      username: kde1054@naver.com
-      password: gnss
+
+      # username: kde1054@naver.com
+      # password: gnss
+
+      username: sns
+      password: 1234
+      
       # Whether to connect with SSL. cert, key, and ca_cert options will only take effect if this is true
       ssl: false
       # If the NTRIP caster uses cert based authentication, you can specify the cert and keys to use with these options

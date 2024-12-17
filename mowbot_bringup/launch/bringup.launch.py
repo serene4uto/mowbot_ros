@@ -128,6 +128,13 @@ def generate_launch_description():
             description='Whether to start the foxglove'
         ),
 
+        DeclareLaunchArgument(
+            'sensormon',
+            default_value='false',
+            description='Whether to start the sensor monitor'
+        ),
+
+
         IncludeLaunchDescription(
             PathJoinSubstitution(
                 [FindPackageShare('mowbot_description'), 'launch', 'description.launch.py']
@@ -267,6 +274,15 @@ def generate_launch_description():
 
             ],
             condition=IfCondition(LaunchConfiguration("rlgps"))
+        ),
+
+        Node(
+            namespace=LaunchConfiguration('namespace'),
+            package='py_mowbot_utils',
+            executable='sensor_monitor',
+            name='sensor_monitor',
+            output='screen',
+            condition=IfCondition(LaunchConfiguration('sensormon')),
         ),
 
         IncludeLaunchDescription(

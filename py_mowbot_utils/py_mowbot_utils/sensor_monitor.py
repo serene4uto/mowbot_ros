@@ -1,8 +1,9 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String
 from sensor_msgs.msg import Imu, LaserScan, NavSatFix
 from rtcm_msgs.msg import Message as Rtcm
+from nav_msgs.msg import Odometry
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus
 
 class SensorMonitorNode(Node):
     def __init__(self):
@@ -15,6 +16,7 @@ class SensorMonitorNode(Node):
             '/imu_gps_heading/data': None,
             '/ublox_gpsl_node/fix': None,
             '/ublox_gpsr_node/fix': None,
+            '/mowbot_base/odom': None,
         }
 
         # Subscriptions for the topics
@@ -24,9 +26,10 @@ class SensorMonitorNode(Node):
         self.create_subscription(Imu, '/imu_gps_heading/data', self.generic_callback('/imu_gps_heading/data'), 10)
         self.create_subscription(NavSatFix, '/ublox_gpsl_node/fix', self.generic_callback('/ublox_gpsl_node/fix'), 10)
         self.create_subscription(NavSatFix, '/ublox_gpsr_node/fix', self.generic_callback('/ublox_gpsr_node/fix'), 10)
+        self.create_subscription(Odometry, '/mowbot_base/odom', self.generic_callback('/mowbot_base/odom'), 10)
 
         # Publisher for sensor status
-        self.status_publisher = self.create_publisher(String, '/sensor_status', 10)
+        self.status_publisher = self.create_publisher(DiagnosticArray, '/sensor_status', 10)
 
         # Timer to check sensor status periodically
         self.create_timer(1.0, self.check_sensor_status)
@@ -38,26 +41,38 @@ class SensorMonitorNode(Node):
 
     def check_sensor_status(self):
         now = self.get_clock().now()
-        status_messages = []
+        diag_array = DiagnosticArray()
+        diag_array.header.stamp = now.to_msg()
+        diag_array.header.frame_id = "sensor_monitor_frame"
+
+        topic_aliases = {
+            '/imu/data': 'IMU',
+            '/scan': 'Lidar',
+            '/rtcm': 'RTCM',
+            '/imu_gps_heading/data': 'Heading',
+            '/ublox_gpsl_node/fix': 'Left GPS',
+            '/ublox_gpsr_node/fix': 'Right GPS',
+            '/mowbot_base/odom': 'AMR Base',
+        }
 
         for topic, last_time in self.last_received_times.items():
-            if last_time is None:
-                status = f"{topic}: No data yet"
-                self.get_logger().info(status)
-                status_messages.append(status)
+            alias = topic_aliases.get(topic, topic)
+            status = DiagnosticStatus()
+            status.name = alias
+            status.hardware_id = "sensor_monitor"
+            if last_time is None or (now - last_time).nanoseconds / 1e9 >= 2.0:
+                status.level = DiagnosticStatus.WARN  # Inactive sensors get WARN
+                status.message = "Inactive"
+                self.get_logger().warn(f"{alias}: Inactive")
             else:
-                elapsed_time = (now - last_time).nanoseconds / 1e9
-                if elapsed_time < 2.0:
-                    status = f"{topic}: Active"
-                    self.get_logger().info(status)
-                    status_messages.append(status)
-                else:
-                    status = f"{topic}: Inactive"
-                    self.get_logger().warn(status)
-                    status_messages.append(status)
+                status.level = DiagnosticStatus.OK  # Active sensors get OK
+                status.message = "Active"
+                self.get_logger().info(f"{alias}: Active")
 
-        # Publish the status messages as a single string
-        self.status_publisher.publish(String(data="\n".join(status_messages)))
+            diag_array.status.append(status)
+
+        # Publish the diagnostic array
+        self.status_publisher.publish(diag_array)
 
 def main(args=None):
     rclpy.init(args=args)
