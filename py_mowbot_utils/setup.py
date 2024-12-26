@@ -29,6 +29,9 @@ setup(
             'nav_no_map_wp_follower = py_mowbot_utils.nav_no_map_wp_follower:main',
             'system_monitor = py_mowbot_utils.system_monitor:main',
             'sensor_monitor = py_mowbot_utils.sensor_monitor:main',
+            
+            'ktserver_client = ktserver_demo.ktserver_client:main',
+            
         ],
     },
 )
