@@ -3,6 +3,14 @@ from rclpy.node import Node
 import requests
 from datetime import datetime
 
+from sensor_msgs.msg import NavSatFix
+from sensor_msgs.msg import Imu
+from nav_msgs.msg import Odometry
+
+import pyproj
+
+from scipy.spatial.transform import Rotation as R
+
 from typing import Literal
 
 TOKEN_URL = "https://biz-dev.ktraas.kt.co.kr/keycloak/realms/openrm/protocol/openid-connect/token"
@@ -11,6 +19,15 @@ ROBOT_STATUS_URL = f"https://biz-dev.ktraas.kt.co.kr/kt-pa-open-api/api/robots/{
 ERROR_REPORT_URL = f"https://biz-dev.ktraas.kt.co.kr/kt-pa-open-api/api/robots/{ROBOT_SERIAL}/error-report"
 CLIENT_ID = "snsolutions"
 CLIENT_SECRET = "QgvVztMwFggaC3Ds1nDCgIXec9P5Ca84"
+
+def get_utm_coordinates(latitude, longitude):
+    # Define the source (WGS84) and target (UTM) coordinate systems
+    wgs84 = pyproj.CRS("EPSG:4326")  # WGS84 coordinate system
+    crs = pyproj.CRS("EPSG:32652")  # UTM Zone 52N coordinate system (for Daegu South Korea)
+    # Create a transformer for the conversion
+    transformer = pyproj.Transformer.from_crs(wgs84, crs, always_xy=True)
+    utm_easting, utm_northing = transformer.transform(longitude, latitude)
+    return utm_easting, utm_northing
 
 class KtServerClient(Node):
     def __init__(self):
@@ -24,18 +41,56 @@ class KtServerClient(Node):
         self.client_secret = CLIENT_SECRET
         
         self.token = None
-        self.location = {
-            "x": 128.213,
-            "y": 38.9438
-        }
-        self.heading = 273
+        self.gps_location = None
+        self.heading = None
+        self.speed = None
         self.error_code = None
-        
+
+
+        self.gps_sub = self.create_subscription(
+            NavSatFix,
+            # '/combined_gps/filtered',
+            '/ublox_gpsr_node/fix',
+            self.gps_callback,
+            10
+        )
+
+        self.heading_sub = self.create_subscription(
+            Imu,
+            '/imu_gps_heading/data',
+            self.heading_callback,
+            10
+        )
+
+        self.base_odom_sub = self.create_subscription(
+            Odometry,
+            '/mowbot_base/odom',
+            self.base_odom_callback,
+            10
+        )
         
         self.token_timer_period = 1.0
         self.token_timer = self.create_timer(self.token_timer_period, self.token_timer_callback)
         self.report_timer_period = 1.0
         self.report_timer = self.create_timer(self.report_timer_period, self.report_timer_callback)
+
+    
+    def gps_callback(self, msg):
+        utm_easting, utm_northing = get_utm_coordinates(msg.latitude, msg.longitude)
+        self.gps_location = {
+            "x": utm_easting,
+            "y": utm_northing
+        }
+        self.get_logger().info(f"GPS: {self.gps_location}")
+
+    def heading_callback(self, msg):
+        r = R.from_quat([msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w])
+        self.heading = r.as_euler('zyx', degrees=True)[0]
+        self.get_logger().info(f"Heading: {self.heading}")
+
+    def base_odom_callback(self, msg):
+        self.speed = msg.twist.twist.linear.x
+        self.get_logger().info(f"Speed: {self.speed}")
         
     
     def token_timer_callback(self):
@@ -84,6 +139,13 @@ class KtServerClient(Node):
     def _send_robot_status(self):
         if self.token is None:
             return
+        
+        if self.gps_location is None:
+            return
+
+        if self.heading is None:
+            return
+        
         try:
             response = requests.post(
                 self.robot_status_url,  # Fixed URL with robot serial
@@ -94,8 +156,8 @@ class KtServerClient(Node):
                 json={
                     "robot_serial": self.robot_serial,
                     "create_time": datetime.now().strftime("%y%m%d%H%M%S%f")[:17],  # Current time in the required format
-                    "x": self.location["x"],
-                    "y": self.location["y"],
+                    "x": self.gps_location["x"],
+                    "y": self.gps_location["y"],
                     "battery": 87.43,
                     "drive_status": 1,
                     "speed": 14.8723,
@@ -140,6 +202,9 @@ class KtServerClient(Node):
         
         except Exception as e:  
             self.get_logger().error(f"Error sending report: {e}")
+        
+        self.gps_location = None
+        self.heading = None
     
     
     def _get_token(self):
