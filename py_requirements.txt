@@ -1,8 +1,0 @@
-numpy
-haversine
-pyproj
-pytz
-scipy
-
-tk
-pydantic
