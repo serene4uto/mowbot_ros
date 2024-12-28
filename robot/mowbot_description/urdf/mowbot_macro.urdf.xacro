@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:arg name="robot_namespace" default="/" />
+  <xacro:arg name="is_sim" default="false" />
+
+  <xacro:macro name="mowbot" params="prefix">
+
+  <!-- Included URDF/XACRO Files -->
+  <xacro:include filename="$(find mowbot_description)/urdf/decorations.urdf.xacro" />
+
+  <xacro:property name="M_PI" value="3.14159"/>
+
+  <!-- Robot Size -->
+  <xacro:property name="robot_x_size" value="1.34000000" />
+  <xacro:property name="robot_y_size" value="1.26000000" />
+  <xacro:property name="robot_z_size" value="0.66200000" />  
+
+  <!-- Base link is the center of the robot's bottom plate -->
+  <link name="${prefix}base_link">
+  </link>
+
+  <link name="${prefix}base_footprint">
+    <visual>
+      <geometry>
+        <mesh filename="package://mowbot_description/meshes/mowbot_v01.stl" scale="1.0 1.0 1.0"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${robot_x_size} ${robot_y_size} ${robot_z_size}"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="${prefix}base_footprint_joint" type="fixed">
+    <origin xyz="0.0 0.0 -0.335" rpy="0.0 0.0 0.0"/>
+    <parent link="${prefix}base_link" />
+    <child link="${prefix}base_footprint" />
+  </joint>
+
+  <!-- Inertial link stores the robot's inertial information -->
+  <!-- TODO -->
+  <link name="${prefix}inertial_link">
+    <inertial>
+      <mass value="46.034" />
+      <origin xyz="-0.00065 -0.085 0.062" />
+      <inertia ixx="0.6022" ixy="-0.02364" ixz="-0.1197" iyy="1.7386" iyz="-0.001544" izz="2.0296" />
+    </inertial>
+  </link>
+
+  <joint name="${prefix}inertial_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <parent link="${prefix}base_link" />
+    <child link="${prefix}inertial_link" />
+  </joint>  
+
+  
+    
+  </xacro:macro>
+
+</robot>

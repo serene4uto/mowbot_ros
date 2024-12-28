@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="mowbot">
+
+  <xacro:arg name="prefix" default="" />
+  <xacro:include filename="$(find mowbot_description)/urdf/mowbot_macro.urdf.xacro" />
+
+  <!-- Load husky description -->
+  <xacro:mowbot prefix="$(arg prefix)" />
+
+</robot>
