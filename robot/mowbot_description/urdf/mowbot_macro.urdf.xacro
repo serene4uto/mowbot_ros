@@ -7,11 +7,10 @@
   <!-- Included URDF/XACRO Files -->
   <xacro:include filename="$(find mowbot_description)/urdf/decorations.urdf.xacro" />
   <xacro:include filename="$(find mowbot_description)/urdf/track.urdf.xacro" />
-
+  <xacro:include filename="$(find mowbot_description)/urdf/inertia_macros.xacro" />
   <xacro:property name="M_PI" value="3.14159"/>
 
   <xacro:macro name="mowbot" params="prefix">
-
 
     <!-- Robot Size -->
     <xacro:property name="robot_x_size" value="1.31600000" />
@@ -32,19 +31,36 @@
 
     <!-- Body Box Size -->
     <xacro:property name="body_box_x_size" value="${robot_x_size}" />
-    <xacro:property name="body_box_y_size" value="${robot_y_size - 2*track_wheel_length}" />
+    <xacro:property name="body_box_y_size" value="${robot_y_size}" />
     <xacro:property name="body_box_z_size" value="${robot_z_size - 2*track_wheel_radius}" />
+
+    <!-- Robot mass -->
+    <xacro:property name="robot_mass" value="310" />
+    <xacro:property name="robot_body_mass" value="297" />
+    <xacro:property name="robot_track_mass" value="0.5" />
+    <xacro:property name="robot_track_wheel_mass" value="1" />
 
     <!-- Base link is the center of the robot's bottom plate -->
     <link name="${prefix}base_link">
     </link>
 
+    <!-- body box link to store the robot's body inertia -->
     <link name="${prefix}body_box">
+      <!-- <visual>
+        <geometry>
+          <box size="${body_box_x_size} ${body_box_y_size} ${body_box_z_size}"/>
+        </geometry>
+        <material name="grey"/>
+      </visual> -->
       <collision>
         <geometry>
           <box size="${body_box_x_size} ${body_box_y_size} ${body_box_z_size}"/>
         </geometry>
       </collision>
+      <inertial_box mass="297" x="${body_box_x_size}" y="${body_box_y_size}" z="${body_box_z_size}">
+        <origin xyz="0 0 0" />
+        <!-- <origin xyz="0 0 ${0.5*(-body_box_z_size)}" /> -->
+      </inertial_box>
     </link>
 
     <joint name="${prefix}body_box_joint" type="fixed">
@@ -77,23 +93,6 @@
       <child link="${prefix}base_footprint" />
     </joint>
 
-    <!-- Inertial link stores the robot's inertial information -->
-    <!-- TODO -->
-    <link name="${prefix}inertial_link">
-      <inertial>
-        <mass value="310" />
-        <origin xyz="0 0 0" />
-        <inertia ixx="0.6022" ixy="-0.02364" ixz="-0.1197" 
-                 iyy="1.7386" iyz="-0.001544" 
-                 izz="2.0296" />
-      </inertial>
-    </link>
-
-    <joint name="${prefix}inertial_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <parent link="${prefix}base_link" />
-      <child link="${prefix}inertial_link" />
-    </joint>  
 
     <!-- Track macros -->
     <xacro:mowbot_track track_prefix="${prefix}left">

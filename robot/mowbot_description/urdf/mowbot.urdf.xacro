@@ -17,9 +17,12 @@
       </plugin>
 
       <!-- other sim -->
-      
+
     </gazebo>
 
+    <gazebo reference="$(arg prefix)base_visual">
+      <material>Gazebo/Orange</material>
+    </gazebo>
 
 
   </xacro:if>
