@@ -1,12 +1,10 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler, GroupAction
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, EnvironmentVariable, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-
-from ament_index_python.packages import get_package_share_directory
 
 
 ARGS = [
@@ -51,8 +49,8 @@ def generate_launch_description():
             " ",
             "is_sim:=true",
             " ",
-            # "gazebo_controllers:=",
-            # config_mowbot_velocity_controller,
+            "gazebo_controllers:=",
+            config_mowbot_velocity_controller,
         ]
     )
     robot_description = {"robot_description": robot_description_content}
@@ -96,10 +94,59 @@ def generate_launch_description():
                    '-timeout', '30']
     )
     
+    bringup_group = GroupAction([
+        # twist_mux
+        Node(
+            name='twist_mux',
+            package='twist_mux',
+            executable='twist_mux',
+            output='screen',
+            remappings={
+                ('/cmd_vel_out', '/mowbot_velocity_controller/cmd_vel_unstamped')
+            },
+            parameters=[
+                PathJoinSubstitution(
+                    [FindPackageShare('mowbot_bringup'), 'config', 'twist_mux.yaml']
+                )
+            ]
+        ),
+        
+        # teleop
+        Node(
+            package='joy',
+            executable='joy_node',
+            output='screen',
+            name='joy_node',
+            parameters=[
+                PathJoinSubstitution(
+                    [FindPackageShare('mowbot_gazebo'), 'config', 'teleop.yaml']
+                )
+            ]
+        ),
+        
+        Node(
+            package='teleop_twist_joy',
+            executable='teleop_node',
+            name='teleop_twist_joy_node',
+            output='screen',
+            parameters=[
+                PathJoinSubstitution(
+                    [FindPackageShare('mowbot_gazebo'), 'config', 'teleop.yaml']
+                )
+            ],
+            remappings=[
+                ('/cmd_vel', '/joy_cmd_vel')
+            ]
+        ),
+        
+    ])
+    
+    
 
     return LaunchDescription(ARGS + [
         node_robot_state_publisher,
         spawn_joint_state_broadcaster,
         diffdrive_controller_spawn_callback,
         spawn_robot_node,
+        bringup_group,
     ])

@@ -28,62 +28,6 @@ def generate_launch_description():
     
     # Launch args
     world_path = LaunchConfiguration('world_path')
-    prefix = LaunchConfiguration('prefix')
-    
-    config_mowbot_velocity_controller = PathJoinSubstitution(
-        [FindPackageShare("mowbot_gazebo"), "config", "gazebo_control.yaml"]
-    )
-
-
-    # Get URDF via xacro
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution(
-                [FindPackageShare("mowbot_description"), "urdf", "mowbot.urdf.xacro"]
-            ),
-            " ",
-            "name:=mowbot",
-            " ",
-            "prefix:=''",
-            " ",
-            "is_sim:=true",
-            " ",
-            "gazebo_controllers:=",
-            config_mowbot_velocity_controller,
-        ]
-    )
-    robot_description = {"robot_description": robot_description_content}
-    
-    spawn_mowbot_velocity_controller = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=['mowbot_velocity_controller', '-c', '/controller_manager'],
-        output='screen',
-    )
-
-    node_robot_state_publisher = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="screen",
-        parameters=[{'use_sim_time': True}, robot_description],
-    )
-
-    spawn_joint_state_broadcaster = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=['joint_state_broadcaster', '-c', '/controller_manager'],
-        output='screen',
-    )
-
-    # Make sure spawn_mowbot_velocity_controller starts after spawn_joint_state_broadcaster
-    diffdrive_controller_spawn_callback = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=spawn_joint_state_broadcaster,
-            on_exit=[spawn_mowbot_velocity_controller],
-        )
-    )
     
     # Gazebo server
     gzserver = ExecuteProcess(
@@ -101,25 +45,8 @@ def generate_launch_description():
         # condition=IfCondition(LaunchConfiguration('gui')),
     )
 
-    # Spawn robot
-    spawn_robot = Node(
-        package='gazebo_ros',
-        executable='spawn_entity.py',
-        name='spawn_mowbot',
-        arguments=['-entity',
-                   'mowbot',
-                   '-topic',
-                   'robot_description',
-                   '-x', '0', '-y', '0', '-z', '0'],
-        output='screen',
-    )
-    
     return LaunchDescription(ARGUMENTS + [
         gz_resource_path,
-        # node_robot_state_publisher,
-        # spawn_joint_state_broadcaster,
-        # diffdrive_controller_spawn_callback,
         gzserver,
         gzclient,
-        # spawn_robot,
     ])
